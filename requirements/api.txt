@@ -1,0 +1,3 @@
+-r common.txt
+
+djangorestframework==2.3.7
