@@ -13,7 +13,6 @@ class ISO8601DateTimeFilter(django_filters.DateTimeFilter):
 
 
 class TimestampedFilterBackend(DjangoFilterBackend):
-    # TODO: unit tests
     def get_filter_class(self, view, queryset=None):
         filter_class = getattr(view, 'filter_class', None)
         filter_fields = getattr(view, 'filter_fields', None)

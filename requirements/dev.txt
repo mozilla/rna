@@ -1,5 +1,6 @@
 -r api.txt
 
+coverage
 mock
 nose
 django-nose
@@ -7,7 +8,7 @@ django-filter
 ipdb
 ipdbplugin
 fabric
+sphinxcontrib-napoleon
 requests
 werkzeug
 flake8
-coverage

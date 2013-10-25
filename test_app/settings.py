@@ -53,3 +53,8 @@ REST_FRAMEWORK = {
 
     'DEFAULT_FILTER_BACKENDS': ('rna.rna.filters.TimestampedFilterBackend',)
 }
+
+RNA = {
+    'BASE_URL': 'https://nucleus.paas.allizom.org/rna/',
+    'LEGACY_API': False,
+}
