@@ -19,7 +19,8 @@ class HyperlinkedModelSerializerWithPkField(
 
     def get_pk_field(self, model_field):
         """
-        Returns a default instance of the pk fiel.
+        Returns a default instance of the pk field, unlike
+        the parent class, which omits the pk field.
         """
         return self.get_field(model_field)
 
