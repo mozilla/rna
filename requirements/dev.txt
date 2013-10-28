@@ -1,0 +1,11 @@
+-r api.txt
+
+mock
+nose
+django-nose
+django-filter
+ipdb
+ipdbplugin
+fabric
+requests
+werkzeug
