@@ -15,22 +15,21 @@ Install requirements
 
 Setup db
 
-    fab syncdb
-    fab migrate
+    make syncdb_migrate
 
 Start server
 
-    fab serve
+    make serve
 
 Using the Python shell
 
-    fab shell
+    make shell
 
 Running tests
 
-    fab test
+    make test
 
 Creating South schema migrations
 
-    fab schema
-    fab migrate
+    make schema
+    make migrate
