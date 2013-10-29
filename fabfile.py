@@ -21,11 +21,14 @@ _local = functools.partial(_local, capture=False)
 def cover():
     """Run the test suite with coverage."""
     _local('coverage erase')
-    _local('coverage run --omit="*migrations* "--branch '
-           '`which django-admin.py` test')
-    _local('coverage report --omit="*migrations*" -m %s/*.py %s/*/*.py' % (
+    _local('coverage run `which django-admin.py` test')
+
+
+def cover_report():
+    cover()
+    _local('coverage report -m %s/*.py %s/*/*.py' % (
            APP_NAME, APP_NAME))
-    _local('coverage html --omit="*migrations*" %s/*.py %s/*/*.py' % (
+    _local('coverage html %s/*.py %s/*/*.py' % (
            APP_NAME, APP_NAME))
 
 

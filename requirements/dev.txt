@@ -9,3 +9,5 @@ ipdbplugin
 fabric
 requests
 werkzeug
+flake8
+coverage
