@@ -2,12 +2,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from django.conf import settings
+
 from rest_framework import serializers
 from rest_framework.compat import parse_datetime
 
 
 def get_client_serializer_class(model_class):
-    class ClientSerializer(UnmodifiedTimestampSerializer):
+    if settings.RNA.get('LEGACY_API', False):
+        Serializer = serializers.ModelSerializer
+    else:
+        Serializer = UnmodifiedTimestampSerializer
+
+    class ClientSerializer(Serializer):
         class Meta:
             model = model_class
 
@@ -19,7 +26,8 @@ class HyperlinkedModelSerializerWithPkField(
 
     def get_pk_field(self, model_field):
         """
-        Returns a default instance of the pk fiel.
+        Returns a default instance of the pk field, unlike
+        the parent class, which omits the pk field.
         """
         return self.get_field(model_field)
 
