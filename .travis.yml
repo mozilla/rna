@@ -6,7 +6,7 @@ env:
   - DJANGO_SETTINGS_MODULE=test_app.settings
 before_script:
   - flake8 rna
-script: fab cover
+script: make cover
 install:
   - pip install -r requirements/dev.txt --use-mirrors
 after_success:
