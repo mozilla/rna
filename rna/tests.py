@@ -78,6 +78,15 @@ class TagTest(TestCase):
         eq_(unicode(tag), 'test')
 
 
+class ReleaseTest(TestCase):
+    def test_unicode(self):
+        """
+        Should equal name
+        """
+        release = models.Release(text='test')
+        eq_(unicode(release), 'test')
+
+
 class ISO8601DateTimeFieldTest(TestCase):
     @patch('rna.rna.fields.parse_datetime')
     def test_strptime(self, mock_parse_datetime):

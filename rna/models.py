@@ -72,3 +72,15 @@ class Note(TimeStampedModel):
 
     def __unicode__(self):
         return self.html
+
+
+class Release(TimeStampedModel):
+    product = models.ForeignKey(Product)
+    channel = models.ForeignKey(Channel)
+    version = models.IntegerField()
+    sub_version = models.IntegerField()
+    release_date = models.DateTimeField()
+    text = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return self.text
