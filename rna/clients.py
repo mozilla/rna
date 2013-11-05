@@ -137,6 +137,7 @@ class RNAModelClient(RestModelClient):
         'channels': models.Channel,
         'notes': models.Note,
         'products': models.Product,
+        'releases': models.Release,
         'tags': models.Tag}
 
 
