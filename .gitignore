@@ -8,6 +8,7 @@
 .jshintrc
 pip-log.txt
 docs/_gh-pages
+docs/_build
 build.py
 build
 .DS_Store
@@ -27,3 +28,4 @@ Desktop.ini
 .vagrant
 test.db
 htmlcov
+/venv/
