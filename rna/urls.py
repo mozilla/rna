@@ -11,6 +11,7 @@ router = routers.DefaultRouter()
 router.register('channels', views.ChannelViewSet)
 router.register('notes', views.NoteViewSet)
 router.register('products', views.ProductViewSet)
+router.register('releases', views.ReleaseViewSet)
 router.register('tags', views.TagViewSet)
 
 urlpatterns = router.urls
