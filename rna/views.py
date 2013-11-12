@@ -21,3 +21,7 @@ class TagViewSet(ModelViewSet):
 
 class NoteViewSet(ModelViewSet):
     model = models.Note
+
+
+class ReleaseViewSet(ModelViewSet):
+    model = models.Release

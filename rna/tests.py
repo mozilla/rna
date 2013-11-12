@@ -711,6 +711,7 @@ class URLsTest(TestCase):
         mock_register.assert_any_call('channels', views.ChannelViewSet)
         mock_register.assert_any_call('notes', views.NoteViewSet)
         mock_register.assert_any_call('products', views.ProductViewSet)
+        mock_register.assert_any_call('releases', views.ReleaseViewSet)
         mock_register.assert_any_call('tags', views.TagViewSet)
         eq_(urls.urlpatterns, mock_urls)
 
