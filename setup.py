@@ -18,7 +18,9 @@ setup(
         'rna', 'rna.migrations'],
     install_requires=[
         'South',
-        'Django>=1.4.6'],
+        'Django>=1.4.9',
+        'djangorestframework==2.3.7',
+        'django-extensions==1.2.0'],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Web Environment',
