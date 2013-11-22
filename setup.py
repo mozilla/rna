@@ -15,7 +15,7 @@ setup(
     #url='',
     #license='',
     packages=[
-        'rna', 'rna.migrations'],
+        'rna', 'rna.migrations', 'rna.management.commands'],
     install_requires=[
         'South',
         'Django>=1.4.9',
