@@ -11,3 +11,6 @@ sphinxcontrib-napoleon
 requests
 werkzeug
 flake8
+
+# Docs
+Sphinx>=1.1.3
