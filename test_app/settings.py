@@ -26,6 +26,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'south',
     'django_nose',  # must come after south b/c south overrides test runner
+    'pagedown',
     'rest_framework',
     'rest_framework.authtoken',
     'rna',
