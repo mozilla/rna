@@ -70,7 +70,7 @@ class Note(TimeStampedModel):
     TAGS = [(x, x) for x in ('New', 'Changed', 'HTML5', 'Fixed', 'Developer')]
 
     bug = models.IntegerField(null=True, blank=True)
-    html = models.TextField(blank=True)
+    note = models.TextField(blank=True)
     releases = models.ManyToManyField(Release, blank=True)
     is_known_issue = models.BooleanField(default=False)
     fixed_in_release = models.ForeignKey(Release, null=True, blank=True,
@@ -85,4 +85,4 @@ class Note(TimeStampedModel):
         ordering = ('sort_num',)
 
     def __unicode__(self):
-        return self.html
+        return self.note
