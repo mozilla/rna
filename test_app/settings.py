@@ -40,7 +40,7 @@ REST_FRAMEWORK = {
     # Use hyperlinked styles by default.
     # Only used if the `serializer_class` attribute is not set on a view.
     'DEFAULT_MODEL_SERIALIZER_CLASS': (
-        'rna.rna.serializers.HyperlinkedModelSerializerWithPkField'),
+        'rna.serializers.HyperlinkedModelSerializerWithPkField'),
 
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
@@ -52,7 +52,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
 
-    'DEFAULT_FILTER_BACKENDS': ('rna.rna.filters.TimestampedFilterBackend',)
+    'DEFAULT_FILTER_BACKENDS': ('rna.filters.TimestampedFilterBackend',)
 }
 
 RNA = {
