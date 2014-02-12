@@ -35,9 +35,9 @@ class TimeStampedModelTest(TestCase):
 class NoteTest(TestCase):
     def test_unicode(self):
         """
-        Should equal description
+        Should equal note
         """
-        note = models.Note(html='test')
+        note = models.Note(note='test')
         eq_(unicode(note), 'test')
 
     def test_is_known_issue_for_not_known(self):
