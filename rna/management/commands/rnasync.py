@@ -1,6 +1,9 @@
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.mail import mail_admins
+from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
+
+from requests.exceptions import RequestException
 
 from ... import clients
 
@@ -30,6 +33,11 @@ class Command(BaseCommand):
         legacy_api = settings.RNA.get('LEGACY_API', False)
         rc = self.rna_client(legacy_api)
         model_params = self.model_params(rc.model_map.values(), legacy_api)
-        for url_name, model_class in rc.model_map.items():
-            params = model_params[model_class]
-            rc.model_client(url_name).model(save=True, params=params)
+        try:
+            for url_name, model_class in rc.model_map.items():
+                params = model_params[model_class]
+                rc.model_client(url_name).model(save=True, params=params)
+        except RequestException as e:
+            subject = 'Problem connecting to Nucleus'
+            mail_admins(subject, str(e))
+            raise CommandError('%s: %s' % (subject, e))
