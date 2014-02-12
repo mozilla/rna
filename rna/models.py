@@ -28,7 +28,8 @@ class TimeStampedModel(models.Model):
 
 
 class Release(TimeStampedModel):
-    CHANNELS = [(x, x) for x in ('Nightly', 'Aurora', 'Beta', 'Release')]
+    CHANNELS = [(x, x) for x in
+                ('Nightly', 'Aurora', 'Beta', 'Release', 'ESR')]
     PRODUCTS = [(x, x) for x in
                 ('Firefox', 'Firefox for Android',
                  'Firefox Extended Support Release', 'Firefox OS')]
