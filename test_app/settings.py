@@ -56,6 +56,6 @@ REST_FRAMEWORK = {
 }
 
 RNA = {
-    'BASE_URL': 'https://nucleus.paas.allizom.org/rna/',
+    'BASE_URL': 'https://nucleus.mozilla.org/rna/',
     'LEGACY_API': False,
 }
