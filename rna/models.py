@@ -28,14 +28,14 @@ class TimeStampedModel(models.Model):
 
 
 class Release(TimeStampedModel):
-    CHANNELS = [(x, x) for x in
-                ('Nightly', 'Aurora', 'Beta', 'Release', 'ESR')]
-    PRODUCTS = [(x, x) for x in
-                ('Firefox', 'Firefox for Android',
-                 'Firefox Extended Support Release', 'Firefox OS')]
+    CHANNELS = ('Nightly', 'Aurora', 'Beta', 'Release', 'ESR')
+    PRODUCTS = ('Firefox', 'Firefox for Android',
+                'Firefox Extended Support Release', 'Firefox OS')
 
-    product = models.CharField(max_length=255, choices=PRODUCTS)
-    channel = models.CharField(max_length=255, choices=CHANNELS)
+    product = models.CharField(max_length=255,
+                               choices=[(p, p) for p in PRODUCTS])
+    channel = models.CharField(max_length=255,
+                               choices=[(c, c) for c in CHANNELS])
     version = models.CharField(max_length=255)
     release_date = models.DateTimeField()
     text = models.TextField(blank=True)
@@ -47,10 +47,12 @@ class Release(TimeStampedModel):
     def notes(self):
         """
         Retrieve a list of Note instances that should be shown for this
-        release, grouped as either new features or known issues.
+        release, sorted by tag and grouped as either new features or
+        known issues.
         """
-        notes = self.note_set.all()
-
+        tag_index = dict((tag, i) for i, tag in enumerate(Note.TAGS))
+        notes = sorted(self.note_set.all(),
+                       key=lambda note: tag_index.get(note.tag, 0))
         new_features = (note for note in notes if
                         not note.is_known_issue_for(self))
         known_issues = (note for note in notes if
@@ -68,7 +70,7 @@ class Release(TimeStampedModel):
 
 
 class Note(TimeStampedModel):
-    TAGS = [(x, x) for x in ('New', 'Changed', 'HTML5', 'Fixed', 'Developer')]
+    TAGS = ('New', 'Changed', 'HTML5', 'Developer', 'Fixed')
 
     bug = models.IntegerField(null=True, blank=True)
     note = models.TextField(blank=True)
@@ -76,7 +78,8 @@ class Note(TimeStampedModel):
     is_known_issue = models.BooleanField(default=False)
     fixed_in_release = models.ForeignKey(Release, null=True, blank=True,
                                          related_name='fixed_note_set')
-    tag = models.CharField(max_length=255, blank=True, choices=TAGS)
+    tag = models.CharField(max_length=255, blank=True,
+                           choices=[(t, t) for t in TAGS])
     sort_num = models.IntegerField(null=True, blank=True)
 
     def is_known_issue_for(self, release):

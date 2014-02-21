@@ -84,7 +84,8 @@ class ReleaseTest(TestCase):
         """
         Should split notes into new features and known issues.
         """
-        new_feature_1 = Mock(**{'is_known_issue_for.return_value': False})
+        new_feature_1 = Mock(**{'is_known_issue_for.return_value': False,
+                                'tag': 'Changed'})
         new_feature_2 = Mock(**{'is_known_issue_for.return_value': False})
         known_issue_1 = Mock(**{'is_known_issue_for.return_value': True})
         known_issue_2 = Mock(**{'is_known_issue_for.return_value': True})
@@ -95,8 +96,8 @@ class ReleaseTest(TestCase):
                                          known_issue_1, known_issue_2]
             new_features, known_issues = release.notes()
 
-        eq_(set(new_features), set([new_feature_1, new_feature_2]))
-        eq_(set(known_issues), set([known_issue_1, known_issue_2]))
+        eq_(list(new_features), [new_feature_2, new_feature_1])
+        eq_(list(known_issues), [known_issue_1, known_issue_2])
 
 
 class ISO8601DateTimeFieldTest(TestCase):
