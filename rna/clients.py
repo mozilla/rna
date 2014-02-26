@@ -36,6 +36,8 @@ class RestClient(object):
             kwargs.setdefault('headers', {})
             kwargs['headers'].setdefault(
                 'Authorization', 'Token ' + self.token)
+        if not settings.RNA.get('VERIFY_SSL_CERT', True):
+            kwargs['verify'] = False
         return requests.request(method, url, **kwargs)
 
     def delete(self, url='', **kwargs):
