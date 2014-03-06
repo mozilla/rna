@@ -44,6 +44,26 @@ class Release(TimeStampedModel):
     bug_search_url = models.CharField(max_length=2000, blank=True)
     system_requirements = models.TextField(blank=True)
 
+    def equivalent_release_for_product(self, product):
+        """
+        Returns the release for a specified product with the same
+        channel and major version with the highest minor version,
+        or None if no such releases exist
+        """
+        return (
+            self._default_manager.filter(
+                version__startswith=self.version.split('.')[0] + '.',
+                channel=self.channel, product=product).order_by('-version')[:1]
+            or [None])[0]
+
+    def equivalent_android_release(self):
+        if self.product == 'Firefox':
+            return self.equivalent_release_for_product('Firefox for Android')
+
+    def equivalent_desktop_release(self):
+        if self.product == 'Firefox for Android':
+            return self.equivalent_release_for_product('Firefox')
+
     def notes(self):
         """
         Retrieve a list of Note instances that should be shown for this

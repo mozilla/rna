@@ -99,6 +99,73 @@ class ReleaseTest(TestCase):
         eq_(list(new_features), [new_feature_2, new_feature_1])
         eq_(list(known_issues), [known_issue_1, known_issue_2])
 
+    def test_equivalent_release_for_product(self):
+        """
+        Should return the release for the specified product with
+        the same channel and major version
+        """
+        release = models.Release(version='42.0', channel='Release')
+        release._default_manager = Mock()
+        mock_order_by = release._default_manager.filter.return_value.order_by
+        mock_order_by.return_value = ['mock release']
+        eq_(release.equivalent_release_for_product('Firefox'), 'mock release')
+        release._default_manager.filter.assert_called_once_with(
+            version__startswith='42.', channel='Release', product='Firefox')
+        mock_order_by.assert_called_once_with('-version')
+
+    def test_no_equivalent_release_for_product(self):
+        """
+        Should return None for empty querysets
+        """
+        release = models.Release(version='42.0', channel='Release')
+        release._default_manager = Mock()
+        release._default_manager.filter.return_value.order_by.return_value = []
+        eq_(release.equivalent_release_for_product('Firefox'), None)
+
+    def test_equivalent_android_release(self):
+        """
+        Should return the equivalent_release_for_product where the
+        product is 'Firefox for Android'
+        """
+        release = models.Release(product='Firefox')
+        release.equivalent_release_for_product = Mock()
+        eq_(release.equivalent_android_release(),
+            release.equivalent_release_for_product.return_value)
+        release.equivalent_release_for_product.assert_called_once_with(
+            'Firefox for Android')
+
+    def test_equivalent_android_release_non_firefox_product(self):
+        """
+        Should not call equivalent_release_for_product if
+        self.product does not equal 'Firefox'
+        """
+        release = models.Release(product='Firefox OS')
+        release.equivalent_release_for_product = Mock()
+        eq_(release.equivalent_android_release(), None)
+        eq_(release.equivalent_release_for_product.called, 0)
+
+    def test_equivalent_desktop_release(self):
+        """
+        Should return the equivalent_release_for_product where the
+        product is 'Firefox'
+        """
+        release = models.Release(product='Firefox for Android')
+        release.equivalent_release_for_product = Mock()
+        eq_(release.equivalent_desktop_release(),
+            release.equivalent_release_for_product.return_value)
+        release.equivalent_release_for_product.assert_called_once_with(
+            'Firefox')
+
+    def test_equivalent_desktop_release_non_firefox_product(self):
+        """
+        Should not call equivalent_release_for_product if
+        self.product does not equal 'Firefox for Android'
+        """
+        release = models.Release(product='Firefox OS')
+        release.equivalent_release_for_product = Mock()
+        eq_(release.equivalent_desktop_release(), None)
+        eq_(release.equivalent_release_for_product.called, 0)
+
 
 class ISO8601DateTimeFieldTest(TestCase):
     @patch('rna.rna.fields.parse_datetime')
