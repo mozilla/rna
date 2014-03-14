@@ -70,7 +70,8 @@ class Release(TimeStampedModel):
 
 
 class Note(TimeStampedModel):
-    TAGS = ('New', 'Changed', 'HTML5', 'Developer', 'Fixed')
+    TAGS = ('New', 'Changed', 'HTML5', 'Developer', 'Fixed', 'Feature',
+            'Language')
 
     bug = models.IntegerField(null=True, blank=True)
     note = models.TextField(blank=True)
