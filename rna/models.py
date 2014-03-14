@@ -50,11 +50,13 @@ class Release(TimeStampedModel):
         channel and major version with the highest minor version,
         or None if no such releases exist
         """
-        return (
-            self._default_manager.filter(
-                version__startswith=self.version.split('.')[0] + '.',
-                channel=self.channel, product=product).order_by('-version')[:1]
-            or [None])[0]
+        releases = self._default_manager.filter(
+            version__startswith=self.version.split('.')[0] + '.',
+            channel=self.channel, product=product).order_by('-version')
+        if releases:
+            return sorted(
+                releases, reverse=True,
+                key=lambda r: len(r.version.split('.')))[0]
 
     def equivalent_android_release(self):
         if self.product == 'Firefox':

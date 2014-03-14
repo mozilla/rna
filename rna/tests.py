@@ -107,8 +107,10 @@ class ReleaseTest(TestCase):
         release = models.Release(version='42.0', channel='Release')
         release._default_manager = Mock()
         mock_order_by = release._default_manager.filter.return_value.order_by
-        mock_order_by.return_value = ['mock release']
-        eq_(release.equivalent_release_for_product('Firefox'), 'mock release')
+        mock_order_by.return_value = [
+            models.Release(version='42.0'), models.Release(version='42.0.1')]
+        eq_(release.equivalent_release_for_product('Firefox').version,
+            '42.0.1')
         release._default_manager.filter.assert_called_once_with(
             version__startswith='42.', channel='Release', product='Firefox')
         mock_order_by.assert_called_once_with('-version')
