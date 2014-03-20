@@ -75,10 +75,10 @@ class Release(TimeStampedModel):
         tag_index = dict((tag, i) for i, tag in enumerate(Note.TAGS))
         notes = sorted(self.note_set.all(),
                        key=lambda note: tag_index.get(note.tag, 0))
-        new_features = (note for note in notes if
-                        not note.is_known_issue_for(self))
-        known_issues = (note for note in notes if
-                        note.is_known_issue_for(self))
+        new_features = [note for note in notes if
+                        not note.is_known_issue_for(self)]
+        known_issues = [note for note in notes if
+                        note.is_known_issue_for(self)]
 
         return new_features, known_issues
 
