@@ -80,6 +80,33 @@ class ReleaseTest(TestCase):
                                  version='12.0.1')
         eq_(unicode(release), 'Firefox v12.0.1 Release')
 
+    def test_major_version(self):
+        """
+        Should return the version up to, but not including, the first dot
+        """
+        eq_(models.Release(version='42.0').major_version(), '42')
+
+    def test_get_bug_search_url(self):
+        """
+        Should return self.bug_search_url
+        """
+        eq_(models.Release(
+            bug_search_url='http://example.com').get_bug_search_url(),
+            'http://example.com')
+
+    def test_get_bug_search_url_default(self):
+        """
+        Should construct based on major version
+        """
+        eq_(models.Release(version='42.0').get_bug_search_url(),
+            'https://bugzilla.mozilla.org/buglist.cgi?'
+            'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
+            'f1=target_milestone&f2=cf_status_firefox42&'
+            'f3=target_milestone&j_top=OR&o1=anywords&o2=anywords&o3=equals&'
+            'query_format=advanced&resolution=FIXED&v1=mozilla42&'
+            'v2=fixed%2Cverified&v3=Firefox%2042&order=bug_id&'
+            'limit=0')
+
     def test_notes(self):
         """
         Should split notes into new features and known issues.

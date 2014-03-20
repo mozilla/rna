@@ -44,6 +44,19 @@ class Release(TimeStampedModel):
     bug_search_url = models.CharField(max_length=2000, blank=True)
     system_requirements = models.TextField(blank=True)
 
+    def major_version(self):
+        return self.version.split('.', 1)[0]
+
+    def get_bug_search_url(self):
+        return self.bug_search_url or (
+            'https://bugzilla.mozilla.org/buglist.cgi?'
+            'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
+            'f1=target_milestone&f2=cf_status_firefox{version}&'
+            'f3=target_milestone&j_top=OR&o1=anywords&o2=anywords&o3=equals&'
+            'query_format=advanced&resolution=FIXED&v1=mozilla{version}&'
+            'v2=fixed%2Cverified&v3=Firefox%20{version}&order=bug_id&'
+            'limit=0'.format(version=self.major_version()))
+
     def equivalent_release_for_product(self, product):
         """
         Returns the release for a specified product with the same
@@ -51,7 +64,7 @@ class Release(TimeStampedModel):
         or None if no such releases exist
         """
         releases = self._default_manager.filter(
-            version__startswith=self.version.split('.')[0] + '.',
+            version__startswith=self.major_version() + '.',
             channel=self.channel, product=product).order_by('-version')
         if releases:
             return sorted(
