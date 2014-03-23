@@ -550,6 +550,7 @@ class RestModelClientTest(TestCase):
 
         mock_fk_field_not_in_data = Mock(spec=models.models.ForeignKey)
         mock_fk_field_not_in_data.name = 'no data'
+        mock_fk_field_not_in_data.rel = Mock(to='to')
 
         mock_m2m_field = Mock(spec=models.models.ManyToManyField)
         mock_m2m_field.name = 'm2m'
@@ -581,6 +582,7 @@ class RestModelClientTest(TestCase):
         mock_serializer.restore_object.assert_called_with({
             'fk': hyper_return,
             'm2m': [hyper_return, hyper_return],
+            'no data': hyper_return,
         })
         eq_(mock_serializer.save_object.called, 0)
 
@@ -697,6 +699,16 @@ class RestModelClientTest(TestCase):
             base_url='http://the.answ.er/is/', model_class=mock_model_class,
             token='midnight')
         mock_model.assert_called_once_with(url='42/', save=False)
+
+    def test_hypermodel_url_none(self):
+        """
+        Should return None when url is None without querying
+        """
+        mock_model_class = Mock()
+
+        rc = clients.RestModelClient()
+        eq_(rc.hypermodel(None, mock_model_class, False), None)
+        eq_(mock_model_class.objects.get.called, False)
 
 
 class RNASyncCommandTest(TestCase):

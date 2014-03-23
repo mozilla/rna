@@ -89,18 +89,13 @@ class RestModelClient(RestClient):
         data.pop('url', None)
         for field in serializer.Meta.model._meta.fields:
             if isinstance(field, models.models.ForeignKey):
-                url = data.pop(field.name, None)
-                if url:
-                    data[field.name] = self.hypermodel(url, field.rel.to, save)
+                data[field.name] = self.hypermodel(
+                    data.pop(field.name, None), field.rel.to, save)
 
         # ManyToManyFields
         for field in serializer.Meta.model._meta.many_to_many:
-            urls = data.pop(field.name, None)
-            if urls:
-                data[field.name] = [
-                    self.hypermodel(url, field.rel.to, save)
-                    for url in urls
-                ]
+            data[field.name] = [self.hypermodel(url, field.rel.to, save)
+                                for url in data.pop(field.name, [])]
 
         instance = serializer.restore_object(data)
         if save:
@@ -133,15 +128,15 @@ class RestModelClient(RestClient):
             instance=instance)
 
     def hypermodel(self, url, model_class, save):
-        # assumes url ends in / -- probably want to make this more robust
-        base_url, pk, _ = url.rsplit('/', 2)
-        try:
-            instance = model_class.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            instance = self.model_client(
-                base_url=base_url + '/', model_class=model_class,
-                token=self.token).model(url='%s/' % pk, save=save)
-        return instance
+        if url:
+            base_url, pk = url.rstrip('/').rsplit('/', 1)
+            try:
+                instance = model_class.objects.get(pk=pk)
+            except ObjectDoesNotExist:
+                instance = self.model_client(
+                    base_url=base_url + '/', model_class=model_class,
+                    token=self.token).model(url='%s/' % pk, save=save)
+            return instance
 
 
 class RNAModelClient(RestModelClient):
