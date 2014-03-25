@@ -117,22 +117,19 @@ class ReleaseTest(TestCase):
         dot_fix = Mock(**{'is_known_issue_for.return_value': False,
                           'tag': 'Fixed',
                           'note': '42.0.1 rendering glitches'})
-        known_issue_1 = Mock(**{'is_known_issue_for.return_value': True,
-                                'sort_num': 1})
-        known_issue_2 = Mock(**{'is_known_issue_for.return_value': True,
-                                'sort_num': None})
-        known_issue_3 = Mock(**{'is_known_issue_for.return_value': True,
-                                'sort_num': -1})
+        known_issue_1 = Mock(**{'is_known_issue_for.return_value': True})
+        known_issue_2 = Mock(**{'is_known_issue_for.return_value': True})
 
         with patch.object(models.Release, 'note_set') as note_set:
             release = models.Release()
-            note_set.all.return_value = [
-                new_feature_2, new_feature_1, dot_fix, known_issue_2,
-                known_issue_3, known_issue_1]
+            note_set.order_by.return_value = [
+                new_feature_2, new_feature_1, dot_fix, known_issue_1,
+                known_issue_2]
             new_features, known_issues = release.notes()
 
+        note_set.order_by.assert_called_with('-sort_num')
         eq_(new_features, [dot_fix, new_feature_2, new_feature_1])
-        eq_(known_issues, [known_issue_1, known_issue_2, known_issue_3])
+        eq_(known_issues, [known_issue_1, known_issue_2])
 
     def test_equivalent_release_for_product(self):
         """

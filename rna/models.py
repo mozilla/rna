@@ -83,16 +83,14 @@ class Release(TimeStampedModel):
         """
         Retrieve a list of Note instances that should be shown for this
         release, grouped as either new features or known issues, and sorted
-        first by sort_num lowest to highest, with None equivalent to 0,
-        which is applied to both groups, and then for new features we also
-        sort by tag in the order specified by Note.TAGS, with untagged
-        notes coming first, then finally moving any note with the fixed
-        tag that starts with the release version to the top, for what we
-        call "dot fixes".
+        first by sort_num highest to lowest, which is applied to both groups,
+        and then for new features we also sort by tag in the order specified
+        by Note.TAGS, with untagged notes coming first, then finally moving
+        any note with the fixed tag that starts with the release version to
+        the top, for what we call "dot fixes".
         """
         tag_index = dict((tag, i) for i, tag in enumerate(Note.TAGS))
-        notes = sorted(self.note_set.all(),
-                       key=lambda n: n.sort_num or 0, reverse=True)
+        notes = self.note_set.order_by('-sort_num')
         known_issues = [n for n in notes if n.is_known_issue_for(self)]
         new_features = sorted(
             sorted(
@@ -125,7 +123,7 @@ class Note(TimeStampedModel):
                                          related_name='fixed_note_set')
     tag = models.CharField(max_length=255, blank=True,
                            choices=[(t, t) for t in TAGS])
-    sort_num = models.IntegerField(null=True, blank=True)
+    sort_num = models.IntegerField(default=0)
 
     def is_known_issue_for(self, release):
         return self.is_known_issue and self.fixed_in_release != release
