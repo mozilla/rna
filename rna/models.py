@@ -106,7 +106,7 @@ class Release(TimeStampedModel):
             product=self.product, version=self.version, channel=self.channel)
 
     class Meta:
-        #TODO: see if this has a significant performance impact
+        # TODO: see if this has a significant performance impact
         ordering = ('product', '-version', 'channel')
         unique_together = (('product', 'version'),)
 

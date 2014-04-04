@@ -103,7 +103,7 @@ class RestModelClient(RestClient):
         return instance
 
     def model_client(self, url_name='', model_class=None, **kwargs):
-        #TODO: decide appropriate level of error handling for this method
+        # TODO: decide appropriate level of error handling for this method
         if url_name and not model_class:
             kwargs.setdefault('base_url', self.get().json()[url_name])
             model_class = self.model_map[url_name]
