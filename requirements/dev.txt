@@ -1,5 +1,6 @@
 -r api.txt
-
+ 
+ipython==1.1.0
 coverage
 mock
 nose

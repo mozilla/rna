@@ -106,14 +106,14 @@ class Release(TimeStampedModel):
             product=self.product, version=self.version, channel=self.channel)
 
     class Meta:
-        #TODO: see if this has a significant performance impact
+        # TODO: see if this has a significant performance impact
         ordering = ('product', '-version', 'channel')
         unique_together = (('product', 'version'),)
 
 
 class Note(TimeStampedModel):
-    TAGS = ('New', 'Changed', 'HTML5', 'Developer', 'Fixed', 'Feature',
-            'Language')
+    TAGS = ('New', 'Changed', 'HTML5', 'Feature', 'Language', 'Developer',
+            'Fixed')
 
     bug = models.IntegerField(null=True, blank=True)
     note = models.TextField(blank=True)
