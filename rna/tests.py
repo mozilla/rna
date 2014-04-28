@@ -100,12 +100,11 @@ class ReleaseTest(TestCase):
         """
         eq_(models.Release(version='42.0').get_bug_search_url(),
             'https://bugzilla.mozilla.org/buglist.cgi?'
+            'j_top=OR&f1=target_milestone&o3=equals&v3=Firefox%2042&'
+            'o1=equals&resolution=FIXED&o2=anyexact&query_format=advanced&'
+            'f3=target_milestone&f2=cf_status_firefox42&'
             'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
-            'f1=target_milestone&f2=cf_status_firefox42&'
-            'f3=target_milestone&j_top=OR&o1=anywords&o2=anywords&o3=equals&'
-            'query_format=advanced&resolution=FIXED&v1=mozilla42&'
-            'v2=fixed%2Cverified&v3=Firefox%2042&order=bug_id&'
-            'limit=0')
+            'v1=mozilla42&v2=fixed%2Cverified&limit=0')
 
     def test_notes(self):
         """

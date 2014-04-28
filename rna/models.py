@@ -50,12 +50,12 @@ class Release(TimeStampedModel):
     def get_bug_search_url(self):
         return self.bug_search_url or (
             'https://bugzilla.mozilla.org/buglist.cgi?'
+            'j_top=OR&f1=target_milestone&o3=equals&v3=Firefox%20{version}&'
+            'o1=equals&resolution=FIXED&o2=anyexact&query_format=advanced&'
+            'f3=target_milestone&f2=cf_status_firefox{version}&'
             'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
-            'f1=target_milestone&f2=cf_status_firefox{version}&'
-            'f3=target_milestone&j_top=OR&o1=anywords&o2=anywords&o3=equals&'
-            'query_format=advanced&resolution=FIXED&v1=mozilla{version}&'
-            'v2=fixed%2Cverified&v3=Firefox%20{version}&order=bug_id&'
-            'limit=0'.format(version=self.major_version()))
+            'v1=mozilla{version}&v2=fixed%2Cverified&limit=0'.format(
+                version=self.major_version()))
 
     def equivalent_release_for_product(self, product):
         """
