@@ -716,99 +716,41 @@ class RestModelClientTest(TestCase):
 
 
 class RNASyncCommandTest(TestCase):
-    @patch('rna.rna.clients.LegacyRNAModelClient.__init__')
-    def test_rna_client_legacy_api(self, mock_init):
-        """
-        Should return a LegacyRNAModelClient instance
-        """
-        mock_init.return_value = None
-        instance = rnasync.Command().rna_client(True)
-        ok_(isinstance(instance, clients.LegacyRNAModelClient))
-        mock_init.assert_called_once_with()
-
-    @patch('rna.rna.clients.RNAModelClient.__init__')
-    def test_rna_client_non_legacy_api(self, mock_init):
-        """
-        Should return an RNAModelClient instance
-        """
-        mock_init.return_value = None
-        instance = rnasync.Command().rna_client(False)
-        ok_(isinstance(instance, clients.RNAModelClient))
-        mock_init.assert_called_once_with()
-
-    def test_model_params_legacy_api(self):
-        """
-        Should return mapping of models to empty dicts
-        """
-        models = ['model1', 'model2']
-        params = rnasync.Command().model_params(models, legacy_api=True)
-        eq_(params, {'model1': {}, 'model2': {}})
-
-    def test_model_params_non_legacy_api_no_latest(self):
+    def test_model_params_no_latest(self):
         """
         Should return mapping of mock_model to empty dict
         """
-        legacy_api = False
         latest = Mock(side_effect=ObjectDoesNotExist)
         mock_model = Mock(objects=Mock(latest=latest))
 
-        params = rnasync.Command().model_params([mock_model], legacy_api)
+        params = rnasync.Command().model_params([mock_model])
 
         eq_(params, {mock_model: {}})
         latest.assert_called_once_with('modified')
 
-    def test_model_params_non_legacy_api_with_latest(self):
+    def test_model_params_with_latest(self):
         """
         Should return mapping of model to query params dict with a
         'modified_after' key and a value of the latest modified datetime
         in ISO 8601 format
         """
-        legacy_api = False
         mock_isoformat = lambda: '2013-10-22T22:29:03.718815'
         mock_instance = Mock(modified=Mock(isoformat=mock_isoformat))
         latest = Mock(return_value=mock_instance)
         mock_model = Mock(objects=Mock(latest=latest))
 
-        params = rnasync.Command().model_params([mock_model], legacy_api)
+        params = rnasync.Command().model_params([mock_model])
 
         eq_(params, {mock_model: {'modified_after': mock_isoformat()}})
         latest.assert_called_once_with('modified')
 
-    @override_settings(RNA={'LEGACY_API': True})
-    @patch('rna.rna.management.commands.rnasync.Command.rna_client')
-    @patch('rna.rna.management.commands.rnasync.Command.model_params')
-    def test_handle(self, mock_model_params, mock_rna_client):
-        mock_model = Mock()
-        mock_model_client = Mock(return_value=Mock(model=mock_model))
-        mock_rna_client.return_value = Mock(
-            model_map={'mock_url_name': 'mock_model'},
-            model_client=mock_model_client)
-        params = {'modified_after': '2013-10-22T22:29:03.718815'}
-        mock_model_params.return_value = {'mock_model': params}
-
-        rnasync.Command().handle()
-
-        mock_rna_client.assert_called_once_with(True)
-        mock_model_params.assert_called_once_with(['mock_model'], True)
-        mock_model_client.assert_called_once_with('mock_url_name')
-        mock_model.assert_called_once_with(save=True, params=params)
-
 
 class GetClientSerializerClassTest(TestCase):
-    @override_settings(RNA={'LEGACY_API': False})
     def test_get_client_serializer_class(self):
         ClientSerializer = serializers.get_client_serializer_class(
             'mock_model_class')
         ok_(issubclass(ClientSerializer,
                        serializers.UnmodifiedTimestampSerializer))
-        eq_(ClientSerializer.Meta.model, 'mock_model_class')
-
-    @override_settings(RNA={'LEGACY_API': True})
-    def test_get_legacy_client_serializer_class(self):
-        ClientSerializer = serializers.get_client_serializer_class(
-            'mock_model_class')
-        ok_(issubclass(ClientSerializer,
-                       serializers.serializers.ModelSerializer))
         eq_(ClientSerializer.Meta.model, 'mock_model_class')
 
 
@@ -859,17 +801,3 @@ class URLsTest(TestCase):
         mock_register.assert_any_call('notes', views.NoteViewSet)
         mock_register.assert_any_call('releases', views.ReleaseViewSet)
         eq_(urls.urlpatterns, mock_urls)
-
-
-class LegacyRNAModelTest(TestCase):
-    @patch('rna.rna.clients.RNAModelClient.restore',
-           return_value='restored')
-    def test_restore(self, mock_super_restore):
-        data = {'bug_num': 42, 'description': 'arthur dent'}
-        lc = clients.LegacyRNAModelClient()
-        serializer = Mock(Meta=Mock(model=models.Note))
-        restored = lc.restore(serializer, data=data)
-        eq_(restored, 'restored')
-        mock_super_restore.assert_called_once_with(
-            serializer, {'bug': 42, 'html': 'arthur dent'}, save=False,
-            modified=True)

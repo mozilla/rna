@@ -55,7 +55,4 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rna.rna.filters.TimestampedFilterBackend',)
 }
 
-RNA = {
-    'BASE_URL': 'https://nucleus.mozilla.org/rna/',
-    'LEGACY_API': False,
-}
+RNA = {'BASE_URL': 'https://nucleus.mozilla.org/rna/'}

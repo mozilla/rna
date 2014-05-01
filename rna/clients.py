@@ -144,13 +144,3 @@ class RNAModelClient(RestModelClient):
         'notes': models.Note,
         'releases': models.Release,
     }
-
-
-class LegacyRNAModelClient(RNAModelClient):
-    field_map = {models.Note: {'bug_num': 'bug', 'description': 'html'}}
-
-    def restore(self, serializer, data, save=False, modified=True):
-        for legacy, f in self.field_map.get(serializer.Meta.model, {}).items():
-            data[f] = data.pop(legacy, None)
-        return super(LegacyRNAModelClient, self).restore(
-            serializer, data, save=save, modified=True)
