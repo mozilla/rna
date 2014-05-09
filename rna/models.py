@@ -4,6 +4,7 @@
 
 from datetime import datetime
 
+from django.conf import settings
 from django.db import models
 from django_extensions.db.fields import CreationDateTimeField
 
@@ -66,6 +67,8 @@ class Release(TimeStampedModel):
         releases = self._default_manager.filter(
             version__startswith=self.major_version() + '.',
             channel=self.channel, product=product).order_by('-version')
+        if not getattr(settings, 'DEV', False):
+            releases = releases.filter(is_public=True)
         if releases:
             return sorted(
                 releases, reverse=True,
