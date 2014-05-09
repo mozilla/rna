@@ -22,7 +22,8 @@ class TimestampedFilterBackend(DjangoFilterBackend):
             return super(TimestampedFilterBackend, self).get_filter_class(
                 view, queryset=queryset)
 
-        elif queryset and issubclass(queryset.model, models.TimeStampedModel):
+        elif queryset and hasattr(queryset, 'model') and issubclass(
+                queryset.model, models.TimeStampedModel):
             class AutoFilterSet(self.default_filter_set):
                 created_before = ISO8601DateTimeFilter(
                     name='created', lookup_type='lt')

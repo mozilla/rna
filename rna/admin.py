@@ -18,17 +18,10 @@ class NoteAdminForm(forms.ModelForm):
 
 class NoteAdmin(admin.ModelAdmin):
     form = NoteAdminForm
-    list_display = ('bug', 'tag', 'note', 'created')
-    list_display_links = ('note',)
-    list_filter = ('tag', 'is_known_issue')
-    filter_horizontal = ('releases',)
+    list_display = ('id', 'bug', 'tag', 'note', 'created')
+    list_display_links = ('id',)
+    list_filter = ('tag', 'is_known_issue', 'releases__product', 'releases__version')
     search_fields = ('bug', 'note', 'releases__version')
-
-
-class NoteInline(admin.TabularInline):
-    model = models.Note.releases.through
-    extra = 1
-    raw_id_fields = ('note',)
 
 
 class ReleaseAdminForm(forms.ModelForm):
@@ -42,7 +35,6 @@ class ReleaseAdminForm(forms.ModelForm):
 
 class ReleaseAdmin(admin.ModelAdmin):
     form = ReleaseAdminForm
-    inlines = (NoteInline,)
     list_display = ('version', 'product', 'channel', 'is_public',
                     'release_date', 'text')
     list_filter = ('product', 'channel', 'is_public')

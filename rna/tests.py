@@ -824,4 +824,4 @@ class URLsTest(TestCase):
         from . import urls
         mock_register.assert_any_call('notes', views.NoteViewSet)
         mock_register.assert_any_call('releases', views.ReleaseViewSet)
-        eq_(urls.urlpatterns, mock_urls)
+        ok_(set(mock_urls).issubset(urls.urlpatterns))
