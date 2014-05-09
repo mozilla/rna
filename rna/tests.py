@@ -5,6 +5,7 @@
 from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.query import EmptyQuerySet
 from django.test import TestCase
 from django.test.utils import override_settings
 from mock import Mock, patch
@@ -130,7 +131,8 @@ class ReleaseTest(TestCase):
         eq_(new_features, [dot_fix, new_feature_2, new_feature_1])
         eq_(known_issues, [known_issue_1, known_issue_2])
 
-    def test_equivalent_release_for_product(self):
+    @override_settings(DEV=True)
+    def test_equivalent_release_for_product_dev(self):
         """
         Should return the release for the specified product with
         the same channel and major version
@@ -146,13 +148,35 @@ class ReleaseTest(TestCase):
             version__startswith='42.', channel='Release', product='Firefox')
         mock_order_by.assert_called_once_with('-version')
 
+    @override_settings(DEV=False)
+    def test_equivalent_release_for_product_prod(self):
+        """
+        Should return the release for the specified product with
+        the same channel and major version, with an additional filter
+        is_public=True
+        """
+        release = models.Release(version='42.0', channel='Release')
+        release._default_manager = Mock()
+        mock_order_by = release._default_manager.filter.return_value.order_by
+        mock_public_filter = Mock(
+            return_value=[
+                models.Release(version='42.0'), models.Release(version='42.0.1')])
+        mock_order_by.return_value = Mock(filter=mock_public_filter)
+        eq_(release.equivalent_release_for_product('Firefox').version,
+            '42.0.1')
+        release._default_manager.filter.assert_called_once_with(
+            version__startswith='42.', channel='Release', product='Firefox')
+        mock_order_by.assert_called_once_with('-version')
+        mock_public_filter.assert_called_once_with(is_public=True)
+
     def test_no_equivalent_release_for_product(self):
         """
         Should return None for empty querysets
         """
         release = models.Release(version='42.0', channel='Release')
         release._default_manager = Mock()
-        release._default_manager.filter.return_value.order_by.return_value = []
+        release._default_manager.filter.return_value.order_by.return_value = (
+            EmptyQuerySet())
         eq_(release.equivalent_release_for_product('Firefox'), None)
 
     def test_equivalent_android_release(self):
