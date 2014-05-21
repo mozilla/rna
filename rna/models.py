@@ -127,6 +127,7 @@ class Note(TimeStampedModel):
     tag = models.CharField(max_length=255, blank=True,
                            choices=[(t, t) for t in TAGS])
     sort_num = models.IntegerField(default=0)
+    is_public = models.BooleanField(default=True)
 
     def is_known_issue_for(self, release):
         return self.is_known_issue and self.fixed_in_release != release
