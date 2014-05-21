@@ -126,10 +126,20 @@ class ReleaseTest(TestCase):
                 new_feature_2, new_feature_1, dot_fix, known_issue_1,
                 known_issue_2]
             new_features, known_issues = release.notes()
+            note_set.order_by.assert_called_with('-sort_num')
 
-        note_set.order_by.assert_called_with('-sort_num')
         eq_(new_features, [dot_fix, new_feature_2, new_feature_1])
         eq_(known_issues, [known_issue_1, known_issue_2])
+
+    def test_notes_public_only(self):
+        """
+        Should filter notes based on is_public attr.
+        """
+        with patch.object(models.Release, 'note_set') as note_set:
+            release = models.Release()
+            release.notes(public_only=True)
+            note_set.order_by.return_value.filter.assert_called_with(
+                is_public=True)
 
     @override_settings(DEV=True)
     def test_equivalent_release_for_product_dev(self):
