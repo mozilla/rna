@@ -82,7 +82,7 @@ class Release(TimeStampedModel):
         if self.product == 'Firefox for Android':
             return self.equivalent_release_for_product('Firefox')
 
-    def notes(self):
+    def notes(self, public_only=False):
         """
         Retrieve a list of Note instances that should be shown for this
         release, grouped as either new features or known issues, and sorted
@@ -94,6 +94,8 @@ class Release(TimeStampedModel):
         """
         tag_index = dict((tag, i) for i, tag in enumerate(Note.TAGS))
         notes = self.note_set.order_by('-sort_num')
+        if public_only:
+            notes = notes.filter(is_public=True)
         known_issues = [n for n in notes if n.is_known_issue_for(self)]
         new_features = sorted(
             sorted(
