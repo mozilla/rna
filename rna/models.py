@@ -107,7 +107,7 @@ class Release(TimeStampedModel):
         return new_features, known_issues
 
     def __unicode__(self):
-        return '{product} v{version} {channel}'.format(
+        return '{product} {version} {channel}'.format(
             product=self.product, version=self.version, channel=self.channel)
 
     class Meta:

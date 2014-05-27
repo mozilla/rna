@@ -11,6 +11,9 @@ from . import models
 
 class NoteAdminForm(forms.ModelForm):
     note = forms.CharField(widget=AdminPagedownWidget())
+    releases = forms.ModelMultipleChoiceField(
+        required=False, queryset=models.Release.objects.all(),
+        widget=admin.widgets.FilteredSelectMultiple('Releases', is_stacked=False))
 
     class Meta:
         model = models.Note

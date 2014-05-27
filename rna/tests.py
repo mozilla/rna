@@ -79,7 +79,7 @@ class ReleaseTest(TestCase):
         release = models.Release(product='Firefox',
                                  channel='Release',
                                  version='12.0.1')
-        eq_(unicode(release), 'Firefox v12.0.1 Release')
+        eq_(unicode(release), 'Firefox 12.0.1 Release')
 
     def test_major_version(self):
         """
