@@ -1,110 +1,165 @@
+/** @jsx React.DOM */
+
 var authToken;
 var converter = new Markdown.Converter();
-var noteKeys = ['id', 'tag', 'is_known_issue', 'note', 'bug', 'sort_num'];
-var noteTable = d3.select('#note-table');
 var notesApiUrl = releaseApiUrl + 'notes/';
 
-
-function editLink(id) {
-    //TODO: make this a popup with a callback to updateNoteTable
-    return '<a href="/admin/rna/note/' + id + '/">Edit</a>'
-}
-
-
-function bugLink(bug) {
-    if (bug) {
-        return '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug + '">' + bug + '</a>';
-    }
-}
-
-
-function removeButton(id) {
-    return '<input type="button" name="remove-note-' + id + '" value="Remove"></input>'
-}
-
-
-function noteValues(note) {
-    return [
-        editLink(note['id']),
-        note['tag'],
-        note['is_known_issue'],
-        converter.makeHtml(note['note']),
-        bugLink(note['bug']),
-        note['sort_num'],
-        removeButton(note['id'])]
-}
-
-
 function authPatch(url, data, callback) {
-    if (authToken) {
-        d3.json(url)
-            .header('Authorization', 'Token ' + authToken)
-            .header('X-HTTP-Method-Override', 'PATCH')
-            .header('Content-Type', 'application/json')
-            .post(data, callback);
-    } else {
-        d3.json('/rna/auth_token/', function(d) {
-            if (d.token) {
-                authToken = d.token
-                d3.json(url)
-                    .header('Authorization', 'Token ' + authToken)
-                    .header('X-HTTP-Method-Override', 'PATCH')
-                    .header('Content-Type', 'application/json')
-                    .post(data, callback);
-            }
-        });
-    }
+  function ajaxPatch() {
+    $.ajax({
+      url: url,
+      method: 'POST',
+      headers: {
+        'Authorization': 'Token ' + authToken,
+        'X-HTTP-Method-Override': 'PATCH',
+        'Content-Type': 'application/json'
+      },
+      data: data,
+      success: callback
+    });
+  }
+
+  if (authToken) {
+    ajaxPatch();
+  } else {
+    $.ajax({
+      url: '/rna/auth_token/',
+      success: function(d) {
+        if (d.token) {
+          authToken = d.token;
+          ajaxPatch();
+        }
+      }
+    });
+  }
 }
 
+function bugUrl(bug) {
+  return 'https://bugzilla.mozilla.org/show_bug.cgi?id=' + bug
+}
 
-function addNote(id) {
-    d3.json('/rna/notes/' + id + '/', function(note) {
+var BugLink = React.createClass({displayName: 'BugLink',
+  render: function() {
+    if (this.props.bug) {
+      return React.DOM.a( {href:bugUrl(this.props.bug)}, this.props.bug);
+    } else {
+     return React.DOM.p(null);
+    }
+  }
+});
+
+
+function noteAdminUrl(noteId) {
+    return '/admin/rna/note/' + noteId + '/'
+}
+
+function tagOrKnownIssue(note) {
+  if(note.is_known_issue && note.is_known_issue != releaseApiUrl) {
+    return 'Known issue'
+  } else {
+    return note.tag
+  }
+}
+
+var NoteRow = React.createClass({displayName: 'NoteRow',
+  removeNote: function() {
+    this.props.removeNote(this.props.note);
+  },
+  render: function() {
+    var note = this.props.note;
+    return (
+      React.DOM.tr(null, 
+        React.DOM.td(null, React.DOM.a( {href:noteAdminUrl(note.id)}, "Edit")),
+        React.DOM.td(null, tagOrKnownIssue(note)),
+        React.DOM.td( {dangerouslySetInnerHTML:{__html: converter.makeHtml(note.note)}} ),
+        React.DOM.td(null, BugLink( {bug:note.bug} )),
+        React.DOM.td(null, note.sort_num),
+        React.DOM.td(null, React.DOM.input( {type:"button", value:"Remove", onClick:this.removeNote} ))
+      )
+    );
+  }
+});
+
+var NoteRows = React.createClass({displayName: 'NoteRows',
+  render: function() {
+    var noteRows = this.props.data.map(function (note, index) {
+      return NoteRow( {key:note.id, note:note, removeNote:this.props.removeNote} );
+    }.bind(this));
+    return React.DOM.tbody(null, noteRows);
+  }
+});
+
+var NoteHeader = React.createClass({displayName: 'NoteHeader',
+  render: function() {
+    var headers = this.props.data.map(function (header, index) {
+      return React.DOM.th( {key:header}, header);
+    });
+    return (
+      React.DOM.thead(null, 
+        React.DOM.tr(null, headers)
+      )
+    );
+  }
+});
+
+var NoteTable = React.createClass({displayName: 'NoteTable',
+  addNote: function(id) {
+    $.ajax({
+      url: '/rna/notes/' + id + '/',
+      success: function(note) {
         var releases = JSON.stringify({releases: note.releases.concat(releaseApiUrl)})
         authPatch(note.url, releases, function() {
-            d3.json(notesApiUrl, updateNoteTable);
-            // TODO: better UI/UX than just adding note to bottom
-            let notes = noteTable.selectAll('tr').data().concat(note);
-            updateNoteTable(notes);
-        });
+          this.getNotes(); 
+        }.bind(this));
+      }.bind(this)
     });
-}
-
-django_dismissRelatedLookupPopup = window.dismissRelatedLookupPopup;
-window.dismissRelatedLookupPopup = function(win, chosenId) {
-    addNote(chosenId);
-    django_dismissRelatedLookupPopup(win, chosenId);
-}
-
-django_dismissAddAnotherPopup = window.dismissAddAnotherPopup;
-window.dismissAddAnotherPopup = function (win, newId, newRepr) {
-    addNote(newId);
-    django_dismissAddAnotherPopup(win, newId, newRepr);
-}
-
-function removeNote() {
-    var note = d3.select(this.name.replace('remove-', '#')).data()[0];
-    let newReleases = JSON.stringify(
-        {releases: [url for each (url in note.releases) if (url != releaseApiUrl)]});
-    authPatch(note.url, newReleases, function() {
-        let notes = [n for each (n in noteTable.selectAll('tr').data()) if (n.id != note.id)];
-        updateNoteTable(notes);
+  },
+  removeNote: function(note) {
+    var releases = JSON.stringify({releases: note.releases.filter(function(releaseUrl) {
+      return releaseUrl != releaseApiUrl
+    })});
+    authPatch(note.url, releases, function() {
+      this.getNotes(); 
+    }.bind(this));
+  },
+  render: function() {
+    var headers = ['Edit', 'Tag/Known issue', 'Note', 'Bug', 'Sort num', 'Remove'];
+    return (
+      React.DOM.table(null, 
+        NoteHeader( {data:headers} ),
+        NoteRows( {data:this.state.data, removeNote:this.removeNote} )
+      )
+    );
+  },
+  getInitialState: function() {
+    return {data: []};
+  },
+  getNotes: function() {
+    $.ajax({
+      url: this.props.url,
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this)
     });
-}
+  },
+  componentWillMount: function() {
+    this.getNotes();
 
-function updateNoteTable(notes) {
-    noteTable.selectAll('th')
-        .data(['Edit', 'Tag', 'Known issue', 'Note', 'Bug', 'Sort num', 'Remove'])
-        .enter().append('th').text(function(d) {return d});
+    django_dismissRelatedLookupPopup = window.dismissRelatedLookupPopup;
+    window.dismissRelatedLookupPopup = function(win, chosenId) {
+      this.addNote(chosenId);
+      django_dismissRelatedLookupPopup(win, chosenId);
+    }.bind(this)
 
-    let noteRowData = noteTable.selectAll('tr').data(notes);
-    noteRowData.enter()
-        .append('tr').attr('id', function(note) {return "note-" + note.id})
-        .selectAll('td')
-            .data(noteValues)
-            .enter().append('td')
-            .html(function(d) {return d})
-            .selectAll('input').on('click', removeNote);
-    noteRowData.exit().remove()
-}
+    django_dismissAddAnotherPopup = window.dismissAddAnotherPopup;
+    window.dismissAddAnotherPopup = function(win, newId, newRepr) {
+      this.addNote(newId);
+      django_dismissAddAnotherPopup(win, newId, newRepr);
+    }.bind(this)
+  }
+});
 
-d3.json(notesApiUrl, updateNoteTable);
+React.renderComponent(
+  NoteTable( {url:notesApiUrl} ),
+  document.getElementById('note-table')
+);

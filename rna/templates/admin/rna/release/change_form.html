@@ -2,10 +2,7 @@
 
 {% block after_related_objects %}
 <h2>Notes</h2>
-<table id="note-table">
-  <thead></thead>
-  <tbody></tbody>
-</table>
+<div id="note-table"></div>
 <p>
   Add
   <input name="add-releasenote" id="add-releasenote" type="hidden">
@@ -16,13 +13,14 @@
     <img width="10" height="10" alt="Add Another" src="/static/admin/img/icon_addlink.gif">
   </a>
 </p>
-<script type="text/javascript" src="/static/js/d3/d3.min.js"></script>
+<script type="text/javascript" src="/static/js/react.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-2.1.1.min.js"></script>
 <script type="text/javascript">
     var releaseApiUrl = window.location.origin + '/rna/releases/{{original.id}}/';
 </script>
-<script type="text/javascript;version=1.7" src="/static/js/releasenotes.js"></script>
+<script type="text/javascript" src="/static/js/releasenotes.js"></script>
 {% endblock %}
 
 {% comment %}
-# vim: filetype=htmldjango
+vim: filetype=htmldjango
 {% endcomment %}
