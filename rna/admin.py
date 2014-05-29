@@ -11,9 +11,6 @@ from . import models
 
 class NoteAdminForm(forms.ModelForm):
     note = forms.CharField(widget=AdminPagedownWidget())
-    releases = forms.ModelMultipleChoiceField(
-        required=False, queryset=models.Release.objects.all(),
-        widget=admin.widgets.FilteredSelectMultiple('Releases', is_stacked=False))
 
     class Meta:
         model = models.Note
@@ -21,6 +18,7 @@ class NoteAdminForm(forms.ModelForm):
 
 class NoteAdmin(admin.ModelAdmin):
     form = NoteAdminForm
+    filter_horizontal = ['releases']
     list_display = ('id', 'bug', 'tag', 'note', 'created')
     list_display_links = ('id',)
     list_filter = ('tag', 'is_known_issue', 'releases__product',
