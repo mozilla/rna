@@ -11,7 +11,7 @@ from django.test.utils import override_settings
 from mock import Mock, patch
 from nose.tools import eq_, ok_
 
-from . import clients, fields, filters, models, serializers, views
+from . import admin, clients, fields, filters, models, serializers, views
 from .management.commands import rnasync
 
 
@@ -835,3 +835,47 @@ class URLsTest(TestCase):
         mock_register.assert_any_call('notes', views.NoteViewSet)
         mock_register.assert_any_call('releases', views.ReleaseViewSet)
         ok_(set(mock_urls).issubset(urls.urlpatterns))
+
+
+class ReleaseAdminTest(TestCase):
+    @patch('rna.rna.admin.ReleaseAdmin.message_user')
+    @patch('rna.rna.admin.datetime')
+    def test_copy_releases(self, mock_datetime, mock_message_user):
+        mock_release_model = Mock()
+        mock_release_model.objects.filter.return_value.count.return_value = 1
+        release_admin = admin.ReleaseAdmin(mock_release_model, 'admin_site')
+        mock_release = Mock(id=1, version='42.0', product='Firefox')
+        mock_release.note_set.all.return_value = ['note']
+
+        release_admin.copy_releases('request', [mock_release])
+
+        mock_release_model.objects.filter.assert_called_once_with(
+            version__endswith='42.0', product='Firefox')
+        eq_(mock_release.id, None)
+        eq_(mock_release.version, 'copy-42.0')
+        mock_release.save.assert_called_once_with()
+        mock_release.note_set.add.assert_called_once_with('note')
+        mock_release.note_set.update.assert_called_once_with(
+            modified=mock_datetime.now.return_value)
+        mock_message_user.assert_called_once_with('request', 'Copied Release')
+
+    @patch('rna.rna.admin.ReleaseAdmin.message_user')
+    @patch('rna.rna.admin.datetime')
+    def test_2nd_copy_releases(self, mock_datetime, mock_message_user):
+        mock_release_model = Mock()
+        mock_release_model.objects.filter.return_value.count.return_value = 2
+        release_admin = admin.ReleaseAdmin(mock_release_model, 'admin_site')
+        mock_release = Mock(id=1, version='42.0', product='Firefox')
+        mock_release.note_set.all.return_value = ['note']
+
+        release_admin.copy_releases('request', [mock_release])
+
+        mock_release_model.objects.filter.assert_called_once_with(
+            version__endswith='42.0', product='Firefox')
+        eq_(mock_release.id, None)
+        eq_(mock_release.version, 'copy2-42.0')
+        mock_release.save.assert_called_once_with()
+        mock_release.note_set.add.assert_called_once_with('note')
+        mock_release.note_set.update.assert_called_once_with(
+            modified=mock_datetime.now.return_value)
+        mock_message_user.assert_called_once_with('request', 'Copied Release')

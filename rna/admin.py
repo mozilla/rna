@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from datetime import datetime
+
 from django import forms
 from django.contrib import admin
 from pagedown.widgets import AdminPagedownWidget
@@ -37,12 +39,35 @@ class ReleaseAdminForm(forms.ModelForm):
 
 
 class ReleaseAdmin(admin.ModelAdmin):
+    actions = ['copy_releases']
     form = ReleaseAdminForm
     list_display = ('version', 'product', 'channel', 'is_public',
                     'release_date', 'text')
     list_filter = ('product', 'channel', 'is_public')
     ordering = ('-release_date',)
     search_fields = ('version', 'text')
+
+    def copy_releases(self, request, queryset):
+        release_count = 0
+        for release in queryset:
+            release_count += 1
+            copy_count = self.model.objects.filter(
+                version__endswith=release.version,
+                product=release.product).count()
+            notes = list(release.note_set.all())
+            copy = release
+            copy.id = None
+            if copy_count > 1:
+                copy.version = 'copy%s-%s' % (copy_count, copy.version)
+            else:
+                copy.version = 'copy-' + copy.version
+            copy.save()
+            copy.note_set.add(*notes)
+            copy.note_set.update(modified=datetime.now())
+        if release_count == 1:
+            self.message_user(request, 'Copied Release')
+        else:
+            self.message_user(request, 'Copied %s Releases' % release_count)
 
 
 admin.site.register(models.Note, NoteAdmin)
