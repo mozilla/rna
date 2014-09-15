@@ -61,6 +61,10 @@ class ReleaseAdmin(admin.ModelAdmin):
                 copy.version = 'copy%s-%s' % (copy_count, copy.version)
             else:
                 copy.version = 'copy-' + copy.version
+            # By default, set it to public. Usually, the copy feature is used
+            # when copying aurora => beta or beta => release. We want to review
+            # it before going live
+            copy.is_public = False
             copy.save()
             copy.note_set.add(*notes)
             copy.note_set.update(modified=datetime.now())
