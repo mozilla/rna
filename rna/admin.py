@@ -42,10 +42,31 @@ class ReleaseAdmin(admin.ModelAdmin):
     actions = ['copy_releases']
     form = ReleaseAdminForm
     list_display = ('version', 'product', 'channel', 'is_public',
-                    'release_date', 'text')
+                    'release_date', 'text', 'url')
     list_filter = ('product', 'channel', 'is_public')
     ordering = ('-release_date',)
     search_fields = ('version', 'text')
+
+    def url(self, obj):
+        base_url_staging = "https://www-dev.allizom.org/en-US"
+        base_url_prod = "https://www.mozilla.com/en-US"
+        product = ""
+
+        if obj.product == "Firefox for Android":
+            product = "mobile"
+        elif obj.product == "Firefox" or obj.product == "Firefox Extended Support Release":
+            product = "firefox"
+        elif obj.product == "Firefox OS":
+            # Special case for Firefox OS. URL are different
+            return ('<a href="{staging}/firefox/os/notes/{version}/">Staging</a> / '
+                    '<a href="{prod}/firefox/os/notes/{version}/">Public</a>'.format(
+                        staging=base_url_staging, product=product, version=obj.version, prod=base_url_prod))
+
+        return ('<a href="{staging}/{product}/{version}/releasenotes/">Staging</a> / '
+                '<a href="{prod}/{product}/{version}/releasenotes/">Public</a>'.format(
+                    staging=base_url_staging, product=product, version=obj.version, prod=base_url_prod))
+
+    url.allow_tags = True
 
     def copy_releases(self, request, queryset):
         release_count = 0
