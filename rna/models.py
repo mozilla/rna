@@ -31,7 +31,8 @@ class TimeStampedModel(models.Model):
 class Release(TimeStampedModel):
     CHANNELS = ('Nightly', 'Aurora', 'Beta', 'Release', 'ESR')
     PRODUCTS = ('Firefox', 'Firefox for Android',
-                'Firefox Extended Support Release', 'Firefox OS')
+                'Firefox Extended Support Release', 'Firefox OS',
+                'Thunderbird')
 
     product = models.CharField(max_length=255,
                                choices=[(p, p) for p in PRODUCTS])
@@ -49,14 +50,26 @@ class Release(TimeStampedModel):
         return self.version.split('.', 1)[0]
 
     def get_bug_search_url(self):
-        return self.bug_search_url or (
+        if self.bug_search_url:
+            return self.bug_search_url
+
+        if self.product == 'Thunderbird':
+            return (
+                'https://bugzilla.mozilla.org/buglist.cgi?'
+                'classification=Client%20Software&query_format=advanced&'
+                'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
+                'target_milestone=Thunderbird%20{version}.0&product=Thunderbird'
+                '&resolution=FIXED'
+            ).format(version=self.major_version())
+
+        return (
             'https://bugzilla.mozilla.org/buglist.cgi?'
             'j_top=OR&f1=target_milestone&o3=equals&v3=Firefox%20{version}&'
             'o1=equals&resolution=FIXED&o2=anyexact&query_format=advanced&'
             'f3=target_milestone&f2=cf_status_firefox{version}&'
             'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
-            'v1=mozilla{version}&v2=fixed%2Cverified&limit=0'.format(
-                version=self.major_version()))
+            'v1=mozilla{version}&v2=fixed%2Cverified&limit=0'
+        ).format(version=self.major_version())
 
     def equivalent_release_for_product(self, product):
         """

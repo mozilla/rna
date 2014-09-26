@@ -107,6 +107,18 @@ class ReleaseTest(TestCase):
             'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
             'v1=mozilla42&v2=fixed%2Cverified&limit=0')
 
+    def test_get_bug_search_url_thunderbird(self):
+        """
+        Should construct based on major version
+        """
+        eq_(models.Release(version='42.0', product='Thunderbird').get_bug_search_url(),
+                'https://bugzilla.mozilla.org/buglist.cgi?'
+                'classification=Client%20Software&query_format=advanced&'
+                'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
+                'target_milestone=Thunderbird%2042.0&product=Thunderbird'
+                '&resolution=FIXED'
+        )
+
     def test_notes(self):
         """
         Should split notes into new features and known issues.
