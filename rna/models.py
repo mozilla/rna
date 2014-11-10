@@ -84,8 +84,9 @@ class Release(TimeStampedModel):
             releases = releases.filter(is_public=True)
         if releases:
             return sorted(
-                releases, reverse=True,
-                key=lambda r: len(r.version.split('.')))[0]
+                sorted(releases, reverse=True,
+                       key=lambda r: len(r.version.split('.'))),
+                reverse=True, key=lambda r: r.version.split('.')[1])[0]
 
     def equivalent_android_release(self):
         if self.product == 'Firefox':
