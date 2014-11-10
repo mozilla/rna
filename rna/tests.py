@@ -176,7 +176,25 @@ class ReleaseTest(TestCase):
             '42.0.1')
         release._default_manager.filter.assert_called_once_with(
             version__startswith='42.', channel='Release', product='Firefox')
-        mock_order_by.assert_called_once_with('-version')
+        mock_public_filter.assert_called_once_with(is_public=True)
+
+    @override_settings(DEV=False)
+    def test_equivalent_release_for_product_33_1(self):
+        """
+        Should order by 2nd version # for 33.1 after applying other
+        sorting criteria
+        """
+        release = models.Release(version='33.1', channel='Release')
+        release._default_manager = Mock()
+        mock_order_by = release._default_manager.filter.return_value.order_by
+        mock_public_filter = Mock(
+            return_value=[
+                models.Release(version='33.0.3'), models.Release(version='33.1')])
+        mock_order_by.return_value = Mock(filter=mock_public_filter)
+        eq_(release.equivalent_release_for_product('Firefox').version,
+            '33.1')
+        release._default_manager.filter.assert_called_once_with(
+            version__startswith='33.', channel='Release', product='Firefox')
         mock_public_filter.assert_called_once_with(is_public=True)
 
     def test_no_equivalent_release_for_product(self):
