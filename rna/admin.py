@@ -56,6 +56,8 @@ class ReleaseAdmin(admin.ModelAdmin):
             product = "mobile"
         elif obj.product == "Firefox" or obj.product == "Firefox Extended Support Release":
             product = "firefox"
+        elif obj.product == "Thunderbird":
+            product = "thunderbird"
         elif obj.product == "Firefox OS":
             # Special case for Firefox OS. URL are different
             return ('<a href="{staging}/firefox/os/notes/{version}/">Staging</a> / '
