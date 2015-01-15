@@ -39,7 +39,7 @@ class ReleaseAdminForm(forms.ModelForm):
 
 
 class ReleaseAdmin(admin.ModelAdmin):
-    actions = ['copy_releases']
+    actions = ['copy_releases', 'set_to_public']
     form = ReleaseAdminForm
     list_display = ('version', 'product', 'channel', 'is_public',
                     'release_date', 'text', 'url')
@@ -96,6 +96,9 @@ class ReleaseAdmin(admin.ModelAdmin):
         else:
             self.message_user(request, 'Copied %s Releases' % release_count)
 
+    def set_to_public(self, request, queryset):
+        """ Set one or several releases to public """
+        queryset.update(is_public=True)
 
 admin.site.register(models.Note, NoteAdmin)
 admin.site.register(models.Release, ReleaseAdmin)
