@@ -1,3 +1,5 @@
+from optparse import make_option
+
 from django.core.mail import mail_admins
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,9 +10,17 @@ from ... import clients
 
 
 class Command(BaseCommand):
-    # TODO: args, help, docstrings
+    option_list = BaseCommand.option_list + (
+        make_option('--force',
+            action='store_true',
+            dest='force',
+            default=False,
+            help='Force complete sync, ignoring modified timestamps'),
+        )
 
-    def model_params(self, models):
+    def model_params(self, models, force=False):
+        if force:
+            return {}
         params = dict((m, {}) for m in models)
         for m in models:
             try:
@@ -23,10 +33,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         rc = clients.RNAModelClient()
-        model_params = self.model_params(rc.model_map.values())
+        model_params = self.model_params(rc.model_map.values(),
+                                         force=options['force'])
         try:
             for url_name, model_class in rc.model_map.items():
-                params = model_params[model_class]
+                params = model_params.get(model_class)
                 rc.model_client(url_name).model(save=True, params=params)
         except RequestException as e:
             subject = 'Problem connecting to Nucleus'
