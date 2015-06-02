@@ -98,7 +98,7 @@ class ReleaseAdmin(admin.ModelAdmin):
 
     def set_to_public(self, request, queryset):
         """ Set one or several releases to public """
-        queryset.update(is_public=True)
+        queryset.update(is_public=True, modified=datetime.now())
 
 admin.site.register(models.Note, NoteAdmin)
 admin.site.register(models.Release, ReleaseAdmin)
