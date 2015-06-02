@@ -2,10 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from datetime import datetime
-
 from django.conf import settings
 from django.db import models
+from django.utils.timezone import now
 from django_extensions.db.fields import CreationDateTimeField
 
 
@@ -24,7 +23,7 @@ class TimeStampedModel(models.Model):
 
     def save(self, *args, **kwargs):
         if kwargs.pop('modified', True):
-            self.modified = datetime.now()
+            self.modified = now()
         super(TimeStampedModel, self).save(*args, **kwargs)
 
 

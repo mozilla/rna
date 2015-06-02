@@ -869,8 +869,8 @@ class URLsTest(TestCase):
 
 class ReleaseAdminTest(TestCase):
     @patch('rna.rna.admin.ReleaseAdmin.message_user')
-    @patch('rna.rna.admin.datetime')
-    def test_copy_releases(self, mock_datetime, mock_message_user):
+    @patch('rna.rna.admin.now')
+    def test_copy_releases(self, mock_now, mock_message_user):
         mock_release_model = Mock()
         mock_release_model.objects.filter.return_value.count.return_value = 1
         release_admin = admin.ReleaseAdmin(mock_release_model, 'admin_site')
@@ -886,12 +886,12 @@ class ReleaseAdminTest(TestCase):
         mock_release.save.assert_called_once_with()
         mock_release.note_set.add.assert_called_once_with('note')
         mock_release.note_set.update.assert_called_once_with(
-            modified=mock_datetime.now.return_value)
+            modified=mock_now.return_value)
         mock_message_user.assert_called_once_with('request', 'Copied Release')
 
     @patch('rna.rna.admin.ReleaseAdmin.message_user')
-    @patch('rna.rna.admin.datetime')
-    def test_2nd_copy_releases(self, mock_datetime, mock_message_user):
+    @patch('rna.rna.admin.now')
+    def test_2nd_copy_releases(self, mock_now, mock_message_user):
         mock_release_model = Mock()
         mock_release_model.objects.filter.return_value.count.return_value = 2
         release_admin = admin.ReleaseAdmin(mock_release_model, 'admin_site')
@@ -907,5 +907,5 @@ class ReleaseAdminTest(TestCase):
         mock_release.save.assert_called_once_with()
         mock_release.note_set.add.assert_called_once_with('note')
         mock_release.note_set.update.assert_called_once_with(
-            modified=mock_datetime.now.return_value)
+            modified=mock_now.return_value)
         mock_message_user.assert_called_once_with('request', 'Copied Release')

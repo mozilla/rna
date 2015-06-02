@@ -2,10 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from datetime import datetime
-
 from django import forms
 from django.contrib import admin
+from django.utils.timezone import now
 from pagedown.widgets import AdminPagedownWidget
 
 from . import models
@@ -90,7 +89,7 @@ class ReleaseAdmin(admin.ModelAdmin):
             copy.is_public = False
             copy.save()
             copy.note_set.add(*notes)
-            copy.note_set.update(modified=datetime.now())
+            copy.note_set.update(modified=now())
         if release_count == 1:
             self.message_user(request, 'Copied Release')
         else:
@@ -98,7 +97,7 @@ class ReleaseAdmin(admin.ModelAdmin):
 
     def set_to_public(self, request, queryset):
         """ Set one or several releases to public """
-        queryset.update(is_public=True, modified=datetime.now())
+        queryset.update(is_public=True, modified=now())
 
 admin.site.register(models.Note, NoteAdmin)
 admin.site.register(models.Release, ReleaseAdmin)
