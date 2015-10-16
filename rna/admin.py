@@ -52,7 +52,9 @@ class ReleaseAdmin(admin.ModelAdmin):
         product = ""
 
         if obj.product == "Firefox for Android":
-            product = "mobile"
+            product = "firefox/android"
+        if obj.product == "Firefox for iOS":
+            product = "firefox/ios"
         elif obj.product == "Firefox" or obj.product == "Firefox Extended Support Release":
             product = "firefox"
         elif obj.product == "Thunderbird":
