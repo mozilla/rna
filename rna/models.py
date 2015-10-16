@@ -31,7 +31,7 @@ class Release(TimeStampedModel):
     CHANNELS = ('Nightly', 'Aurora', 'Beta', 'Release', 'ESR')
     PRODUCTS = ('Firefox', 'Firefox for Android',
                 'Firefox Extended Support Release', 'Firefox OS',
-                'Thunderbird')
+                'Thunderbird', 'Firefox for iOS')
 
     product = models.CharField(max_length=255,
                                choices=[(p, p) for p in PRODUCTS])
