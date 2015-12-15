@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='rna',
-    version='0.0.1',
+    version='1.0',
     description='',
     author='Josh Mize',
     author_email='jmize@mozilla.com',
@@ -19,8 +19,8 @@ setup(
     install_requires=[
         'South',
         'Django>=1.4.9',
-        'djangorestframework==2.3.7',
-        'django-extensions==1.2.0'],
+        'djangorestframework>=2.3.7',
+        'django-extensions>=1.2.0'],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Web Environment',
