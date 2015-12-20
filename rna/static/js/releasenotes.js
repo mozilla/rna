@@ -2,50 +2,27 @@
 
 ;(function($, React, Markdown, mori) {
   'use strict';
-  var authToken;
   var converter = new Markdown.Converter();
+  var csrftoken = $('input[name="csrfmiddlewaretoken"]')[0].value;
   var releaseId = $('#note-table').data('releaseid');
   var releaseApiUrl = window.location.origin + '/rna/releases/' + releaseId + '/';
   var notesApiUrl = releaseApiUrl + 'notes/';
 
   function authPost(url, data, callback, patchOverride) {
-    var headers = {'Content-Type': 'application/json'};
+    var headers = {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken};
     if(patchOverride) {
       headers['X-HTTP-Method-Override'] = 'PATCH';
     }
-    function ajaxPost() {
-      headers.Authorization = 'Token ' + authToken;
-      $.ajax({
-        url: url,
-        method: 'POST',
-        headers: headers,
-        data: data,
-        success: callback,
-        error: function(jqXHR, textStatus, errorThrown) {
-          alert('Unable to complete request: ' + jqXHR.status + ' ' + textStatus + ' ' + errorThrown);
-        }
-      });
-    }
-
-    if (authToken) {
-      ajaxPost();
-    } else {
-      $.ajax({
-        url: '/rna/auth_token/',
-        success: function(d) {
-          if (d.token) {
-            authToken = d.token;
-            ajaxPost();
-          } else {
-            alert('Unable to acquire authToken: response from server did not contain token');
-          }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          alert('Unable to acquire authToken: ' + jqXHR.status + ' ' + textStatus + ' ' + errorThrown);
-        }
-
-      });
-    }
+    $.ajax({
+      url: url,
+      method: 'POST',
+      headers: headers,
+      data: data,
+      success: callback,
+      error: function(jqXHR, textStatus, errorThrown) {
+        alert('Unable to complete request: ' + jqXHR.status + ' ' + textStatus + ' ' + errorThrown);
+      }
+    });
   }
 
   function authPatch(url, data, callback) {
@@ -154,7 +131,7 @@
         return releaseUrl != releaseApiUrl;
       })});
       authPatch(note.url, releases, function() {
-        this.getNotes(); 
+        this.getNotes();
       }.bind(this));
     },
     render: function() {
@@ -172,8 +149,9 @@
     getNotes: function() {
       $.ajax({
         url: this.props.url,
+        cache: false,
         success: function(data) {
-          this.setState({data: data});
+          this.replaceState({data: data});
         }.bind(this),
         error: function(jqXHR, textStatus, errorThrown) {
           alert('Unable to get notes: ' + jqXHR.status + ' ' + textStatus + ' ' + errorThrown);
