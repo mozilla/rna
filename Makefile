@@ -4,7 +4,7 @@ BASEDIR = $(CURDIR)
 NAME = $(shell basename $(BASEDIR))
 CMD_NAME = django-admin.py
 
-export DJANGO_SETTINGS_MODULE = test_app.settings
+export DJANGO_SETTINGS_MODULE = tests.settings
 export PYTHONPATH := $(BASEDIR):$(PYTHONPATH)
 
 help:
@@ -28,7 +28,7 @@ help:
 
 cover:
 	@coverage erase
-	@coverage run `which $(CMD_NAME)` test
+	@coverage run runtests.py
 
 cover_report: cover
 	@coverage report -m $(APP_DIR)/**.py
@@ -38,7 +38,7 @@ manage:
 	@$(CMD_NAME) $(filter-out $@, $(MAKECMDGOALS))
 
 migrate:
-	$(CMD_NAME) migrate $(APP_DIR) $(filter-out $@, $(MAKECMDGOALS))
+	$(CMD_NAME) migrate $(filter-out $@, $(MAKECMDGOALS))
 
 shell:
 	@$(CMD_NAME) shell
@@ -65,10 +65,10 @@ schema_initial:
 	@$(CMD_NAME) schemamigration $(APP_DIR) --initial
 
 test:
-	@$(CMD_NAME) test $(filter-out $@, $(MAKECMDGOALS))
+	@./runtests.py $(filter-out $@, $(MAKECMDGOALS))
 
 test_ipdb:
-	@$(CMD_NAME) test $(filter-out $@, $(MAKECMDGOALS)) --ipdb --ipdb-failures
+	@./runtests.py $(filter-out $@, $(MAKECMDGOALS)) --ipdb --ipdb-failures
 
 
 .PHONY: cover cover_report manage migrate shell shell_plus serve serve_plus syncdb syncdb_migrate schema schema_initial test test_ipdb

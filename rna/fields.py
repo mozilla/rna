@@ -1,6 +1,5 @@
 from django import forms
-
-from rest_framework.compat import parse_datetime
+from django.utils.dateparse import parse_datetime
 
 
 class ISO8601DateTimeField(forms.DateTimeField):

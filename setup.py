@@ -8,18 +8,18 @@ from setuptools import setup
 
 setup(
     name='rna',
-    version='1.0',
+    version='2.0',
     description='',
     author='Josh Mize',
     author_email='jmize@mozilla.com',
     #url='',
     #license='',
-    packages=[
-        'rna', 'rna.management', 'rna.management.commands'],
+    packages=['rna'],
+    include_package_data=True,
+    zip_safe=False,
     install_requires=[
-        'South',
-        'Django>=1.4.9',
-        'djangorestframework>=2.3.7',
+        'Django>=1.8,<1.9',
+        'djangorestframework>=3.3.0',
         'django-extensions>=1.2.0'],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

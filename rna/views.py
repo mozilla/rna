@@ -11,7 +11,7 @@ from rest_framework import generics
 from rest_framework.authtoken.models import Token
 from rest_framework.viewsets import ModelViewSet
 
-from . import models
+from . import models, serializers
 
 
 def auth_token(request):
@@ -25,15 +25,18 @@ def auth_token(request):
 
 
 class NoteViewSet(ModelViewSet):
-    model = models.Note
+    queryset = models.Note.objects.all()
+    serializer_class = serializers.NoteSerializer
 
 
 class ReleaseViewSet(ModelViewSet):
-    model = models.Release
+    queryset = models.Release.objects.all()
+    serializer_class = serializers.ReleaseSerializer
 
 
 class NestedNoteView(generics.ListAPIView):
     model = models.Note
+    serializer_class = serializers.NoteSerializer
 
     def get_queryset(self):
         release = get_object_or_404(models.Release, pk=self.kwargs.get('pk'))
