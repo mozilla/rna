@@ -1,17 +1,16 @@
 sudo: false
 language: python
 python:
-  - "2.7"
+  - '2.7'
 env:
   - DJANGO_SETTINGS_MODULE=tests.settings
+install:
+  - travis_retry pip install -r requirements/dev.txt
 before_script:
   - flake8 rna
 script: make cover
-install:
-  - pip install -r requirements/dev.txt --use-mirrors
 after_success:
-  # Report coverage results to coveralls.io
-  - pip install coveralls --use-mirrors
+  - travis_retry pip install coveralls
   - coveralls
 notifications:
   irc:
@@ -20,3 +19,12 @@ notifications:
     on_success: change
     on_failure: always
     use_notice: true
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: pmclanahan
+  password:
+    secure: DnYb9z64qLO70e+O8fHYb98HAPIm40Hwrx6uKSN/ha5AxTFUloRicH2l1URunJQlWVAKaewXyzkx2vUuBjuM7UpkHy/JzP4XR5ZVNbkalww6wqORtw629e2BiLMNA5eNB86uwpxtTPLv5+/n/YRcK+VAJpmWmMzbAq2NT3JxTOs=
+  on:
+    tags: true
+    repo: mozilla/rna

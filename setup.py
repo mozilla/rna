@@ -7,24 +7,27 @@
 from setuptools import setup
 
 setup(
-    name='rna',
+    name='django-mozilla-rna',
     version='2.0',
-    description='',
+    description='Django app for managing Mozilla product release notes.',
     author='Josh Mize',
     author_email='jmize@mozilla.com',
-    #url='',
-    #license='',
+    url='https://github.com/mozilla/rna/',
+    license='MPL 2.0',
     packages=['rna'],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
         'Django>=1.8,<1.9',
         'djangorestframework>=3.3.0',
-        'django-extensions>=1.2.0'],
+        'django-extensions>=1.2.0',
+    ],
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
-        'Programming Language :: Python'],
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+    ],
 )
