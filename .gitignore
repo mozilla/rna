@@ -11,6 +11,8 @@ docs/_gh-pages
 docs/_build
 build.py
 build
+dist
+django_mozilla_rna.egg-info
 .DS_Store
 *-min.css
 *-all.css
@@ -29,3 +31,4 @@ Desktop.ini
 test.db
 htmlcov
 /venv/
+

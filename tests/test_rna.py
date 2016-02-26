@@ -4,14 +4,27 @@
 
 from datetime import datetime
 
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.query import QuerySet
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from mock import Mock, patch
 from nose.tools import eq_, ok_
 
 from rna import admin, fields, filters, models, views
+
+
+@patch('rna.management.commands.rnasync.sync_data')
+@override_settings(RNA_SYNC_URL='retrovirus')
+class RnaSyncCommandTests(TestCase):
+    def test_call_no_args(self, sync_data_mock):
+        call_command('rnasync')
+        sync_data_mock.assert_called_with(url='retrovirus', clean=False,
+                                          api_token=None, reset=False)
+
+    def test_call_with_args(self, sync_data_mock):
+        call_command('rnasync', url='megavirus', clean=True)
+        sync_data_mock.assert_called_with(url='megavirus', clean=True,
+                                          api_token=None, reset=False)
 
 
 class TimeStampedModelTest(TestCase):
@@ -111,12 +124,12 @@ class ReleaseTest(TestCase):
         Should construct based on major version
         """
         eq_(models.Release(version='42.0', product='Thunderbird').get_bug_search_url(),
-                'https://bugzilla.mozilla.org/buglist.cgi?'
-                'classification=Client%20Software&query_format=advanced&'
-                'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
-                'target_milestone=Thunderbird%2042.0&product=Thunderbird'
-                '&resolution=FIXED'
-        )
+            'https://bugzilla.mozilla.org/buglist.cgi?'
+            'classification=Client%20Software&query_format=advanced&'
+            'bug_status=RESOLVED&bug_status=VERIFIED&bug_status=CLOSED&'
+            'target_milestone=Thunderbird%2042.0&product=Thunderbird'
+            '&resolution=FIXED'
+            )
 
     def test_notes(self):
         """

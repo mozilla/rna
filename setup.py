@@ -14,13 +14,14 @@ setup(
     author_email='jmize@mozilla.com',
     url='https://github.com/mozilla/rna/',
     license='MPL 2.0',
-    packages=['rna'],
+    packages=['rna', 'rna.management', 'rna.management.commands'],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
         'Django>=1.8,<1.9',
         'djangorestframework>=3.3.0',
         'django-extensions>=1.2.0',
+        'django-synctool',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
