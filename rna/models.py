@@ -127,6 +127,7 @@ class Release(TimeStampedModel):
         # TODO: see if this has a significant performance impact
         ordering = ('product', '-version', 'channel')
         unique_together = (('product', 'version'),)
+        get_latest_by = 'modified'
 
 
 class Note(TimeStampedModel):
@@ -149,3 +150,6 @@ class Note(TimeStampedModel):
 
     def __unicode__(self):
         return self.note
+
+    class Meta:
+        get_latest_by = 'modified'

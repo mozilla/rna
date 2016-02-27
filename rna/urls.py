@@ -4,12 +4,9 @@
 from django.conf.urls import url, include
 
 from rest_framework import routers
-from synctool.routing import Route
 
 from . import views
 
-
-rnasync = Route(api_token=None).app('rna', 'rna')
 
 router = routers.DefaultRouter()
 router.register('notes', views.NoteViewSet)
@@ -19,5 +16,5 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^releases/(?P<pk>\d+)/notes/$', views.NestedNoteView.as_view()),
     url(r'^auth_token/$', views.auth_token),
-    url(r'^sync/?$', rnasync),
+    url(r'^sync/?$', views.rnasync),
 ]

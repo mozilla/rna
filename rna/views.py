@@ -7,11 +7,19 @@ import json
 
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
+from django.views.decorators.http import last_modified
+
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
 from rest_framework.viewsets import ModelViewSet
+from synctool.routing import Route
 
 from . import models, serializers
+from .utils import get_last_modified_date
+
+
+rnasync = Route(api_token=None).app('rna', 'rna')
+rnasync = last_modified(get_last_modified_date)(rnasync)
 
 
 def auth_token(request):

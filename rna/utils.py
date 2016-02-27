@@ -1,4 +1,20 @@
-from .models import Release
+from django.core.exceptions import ObjectDoesNotExist
+
+from .models import Note, Release
+
+
+def get_last_modified_date(*args, **kwargs):
+    """Returns the date of the last modified Note or Release.
+
+    For use with Django's last_modified decorator.
+    """
+    try:
+        latest_note = Note.objects.latest()
+        latest_release = Release.objects.latest()
+    except ObjectDoesNotExist:
+        return None
+
+    return max(latest_note.modified, latest_release.modified)
 
 
 def migrate_versions():
