@@ -1,45 +1,24 @@
-from optparse import make_option
+from django.conf import settings
+from django.core.management import BaseCommand
 
-from django.core.mail import mail_admins
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ObjectDoesNotExist
+from synctool.functions import sync_data
 
-from requests.exceptions import RequestException
+from rna.utils import get_last_modified_date
 
-from ... import clients
+
+DEFAULT_RNA_SYNC_URL = 'https://nucleus.mozilla.org/rna/sync/'
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option('--force',
-            action='store_true',
-            dest='force',
-            default=False,
-            help='Force complete sync, ignoring modified timestamps'),
-        )
-
-    def model_params(self, models, force=False):
-        if force:
-            return {}
-        params = dict((m, {}) for m in models)
-        for m in models:
-            try:
-                latest = m.objects.latest('modified')
-            except ObjectDoesNotExist:
-                pass
-            else:
-                params[m]['modified_after'] = latest.modified.isoformat()
-        return params
+    def add_arguments(self, parser):
+        parser.add_argument('-u', '--url',
+                            default=getattr(settings, 'RNA_SYNC_URL', DEFAULT_RNA_SYNC_URL),
+                            help='Full URL to RNA Sync endpoint')
+        parser.add_argument('-c', '--clean', action='store_true',
+                            help='Delete all RNA data before sync.')
 
     def handle(self, *args, **options):
-        rc = clients.RNAModelClient()
-        model_params = self.model_params(rc.model_map.values(),
-                                         force=options['force'])
-        try:
-            for url_name, model_class in rc.model_map.items():
-                params = model_params.get(model_class)
-                rc.model_client(url_name).model(save=True, params=params)
-        except RequestException as e:
-            subject = 'Problem connecting to Nucleus'
-            mail_admins(subject, str(e))
-            raise CommandError('%s: %s' % (subject, e))
+        sync_data(url=options['url'],
+                  clean=options['clean'],
+                  last_modified=get_last_modified_date(),
+                  api_token=None)

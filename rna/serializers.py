@@ -3,39 +3,23 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 from rest_framework import serializers
-from rest_framework.compat import parse_datetime
+
+from .models import Note, Release
 
 
-def get_client_serializer_class(model_class):
-    class ClientSerializer(UnmodifiedTimestampSerializer):
-        class Meta:
-            model = model_class
-
-    return ClientSerializer
-
-
-class HyperlinkedModelSerializerWithPkField(
-        serializers.HyperlinkedModelSerializer):
-
-    def get_pk_field(self, model_field):
-        """
-        Returns a default instance of the pk field, unlike
-        the parent class, which omits the pk field.
-        """
-        return self.get_field(model_field)
+class HyperlinkedModelSerializerWithPkField(serializers.HyperlinkedModelSerializer):
+    def get_default_field_names(self, declared_fields, model_info):
+        fields = super(HyperlinkedModelSerializerWithPkField, self).get_default_field_names(
+            declared_fields, model_info)
+        fields.append('id')
+        return fields
 
 
-class UnmodifiedTimestampSerializer(serializers.ModelSerializer):
-    def restore_object(self, attrs, instance=None):
-        obj = super(UnmodifiedTimestampSerializer, self).restore_object(
-            attrs, instance=instance)
-        for attr in ('created', 'modified'):  # TODO: dynamic attr list
-            value = getattr(obj, attr, None)
-            if value and isinstance(value, basestring):
-                setattr(obj, attr, parse_datetime(value))
-        return obj
+class NoteSerializer(HyperlinkedModelSerializerWithPkField):
+    class Meta:
+        model = Note
 
-    def save_object(self, obj, **kwargs):
-        kwargs['modified'] = False
-        return super(UnmodifiedTimestampSerializer, self).save_object(
-            obj, **kwargs)
+
+class ReleaseSerializer(HyperlinkedModelSerializerWithPkField):
+    class Meta:
+        model = Release

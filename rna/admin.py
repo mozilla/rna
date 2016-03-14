@@ -15,6 +15,7 @@ class NoteAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.Note
+        fields = '__all__'
 
 
 class NoteAdmin(admin.ModelAdmin):
@@ -35,6 +36,7 @@ class ReleaseAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.Release
+        fields = '__all__'
 
 
 class ReleaseAdmin(admin.ModelAdmin):

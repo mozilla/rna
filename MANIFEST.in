@@ -1,0 +1,6 @@
+include *.md LICENSE
+include runtests.py
+recursive-include tests *.py
+recursive-include requirements *.txt
+recursive-include rna/static *.js
+recursive-include rna/templates *.html
