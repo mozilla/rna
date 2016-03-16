@@ -70,9 +70,9 @@ class RestClient(object):
 
 
 class RestModelClient(RestClient):
-    model_map = {}
 
     def __init__(self, base_url='', token='', cache=None, model_class=None):
+        self.model_map = {}
         self.model_class = model_class
         super(RestModelClient, self).__init__(base_url=base_url, token=token,
                                               cache=cache)
