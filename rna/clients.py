@@ -140,7 +140,7 @@ class RestModelClient(RestClient):
 
 
 class RNAModelClient(RestModelClient):
-    model_map = {
-        'notes': models.Note,
-        'releases': models.Release,
-    }
+    def __init__(self, base_url='', token='', cache=None, model_class=None):
+        super(RNAModelClient, self).__init__(base_url=base_url, token=token,
+                                             cache=cache)
+        self.model_map.update(notes=models.Note, releases=models.Release)
