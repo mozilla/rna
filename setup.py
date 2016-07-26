@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='django-mozilla-rna',
-    version='2.0',
+    version='2.0.1',
     description='Django app for managing Mozilla product release notes.',
     author='Josh Mize',
     author_email='jmize@mozilla.com',
