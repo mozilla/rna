@@ -48,4 +48,4 @@ class NestedNoteView(generics.ListAPIView):
 
     def get_queryset(self):
         release = get_object_or_404(models.Release, pk=self.kwargs.get('pk'))
-        return chain(*release.notes())
+        return release.note_set.all()
