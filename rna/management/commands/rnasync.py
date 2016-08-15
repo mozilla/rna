@@ -18,7 +18,8 @@ class Command(BaseCommand):
                             help='Delete all RNA data before sync.')
 
     def handle(self, *args, **options):
+        clean = options['clean']
         sync_data(url=options['url'],
-                  clean=options['clean'],
-                  last_modified=get_last_modified_date(),
+                  clean=clean,
+                  last_modified=None if clean else get_last_modified_date(),
                   api_token=None)
