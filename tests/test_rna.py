@@ -19,12 +19,14 @@ class RnaSyncCommandTests(TestCase):
     def test_call_no_args(self, sync_data_mock):
         call_command('rnasync')
         sync_data_mock.assert_called_with(url='retrovirus', clean=False,
-                                          last_modified=None, api_token=None)
+                                          last_modified=None, api_token=None,
+                                          database='default')
 
     def test_call_with_args(self, sync_data_mock):
         call_command('rnasync', url='megavirus', clean=True)
         sync_data_mock.assert_called_with(url='megavirus', clean=True,
-                                          last_modified=None, api_token=None)
+                                          last_modified=None, api_token=None,
+                                          database='default')
 
 
 class TimeStampedModelTest(TestCase):
