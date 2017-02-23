@@ -10,6 +10,19 @@ from pagedown.widgets import AdminPagedownWidget
 from . import models
 
 
+class SystemRequirementAdminForm(forms.ModelForm):
+    content = forms.CharField(widget=AdminPagedownWidget(), required=False)
+    creation_date = forms.DateTimeField(widget=admin.widgets.AdminDateWidget)
+
+    class Meta:
+        model = models.SystemRequirement
+        fields = '__all__'
+
+
+class SystemRequirementAdmin(admin.ModelAdmin):
+    form = SystemRequirementAdminForm
+
+
 class NoteAdminForm(forms.ModelForm):
     note = forms.CharField(widget=AdminPagedownWidget())
 
@@ -106,3 +119,4 @@ class ReleaseAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Note, NoteAdmin)
 admin.site.register(models.Release, ReleaseAdmin)
+admin.site.register(models.SystemRequirement, SystemRequirementAdmin)

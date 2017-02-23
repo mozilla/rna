@@ -27,6 +27,18 @@ class TimeStampedModel(models.Model):
         super(TimeStampedModel, self).save(*args, **kwargs)
 
 
+class SystemRequirement(TimeStampedModel):
+    code_name = models.CharField(blank=False, max_length=255)
+    content = models.TextField(blank=True)
+    creation_date = models.DateTimeField(blank=False)
+
+    def __unicode__(self):
+        return self.code_name
+
+    class Meta:
+        get_latest_by = 'modified'
+
+
 class Release(TimeStampedModel):
     CHANNELS = ('Nightly', 'Aurora', 'Beta', 'Release', 'ESR')
     PRODUCTS = ('Firefox', 'Firefox for Android',
@@ -44,6 +56,7 @@ class Release(TimeStampedModel):
     bug_list = models.TextField(blank=True)
     bug_search_url = models.CharField(max_length=2000, blank=True)
     system_requirements = models.TextField(blank=True)
+    system_requirements_id = models.ForeignKey(SystemRequirement, blank=False, on_delete=models.CASCADE)
 
     def major_version(self):
         return self.version.split('.', 1)[0]

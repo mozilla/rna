@@ -11,6 +11,7 @@ from . import views
 router = routers.DefaultRouter()
 router.register('notes', views.NoteViewSet)
 router.register('releases', views.ReleaseViewSet)
+router.register('system_requirements', views.SystemRequirementViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
