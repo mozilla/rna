@@ -145,6 +145,8 @@ class Note(TimeStampedModel):
     sort_num = models.IntegerField(default=0)
     is_public = models.BooleanField(default=True)
 
+    image = models.ImageField(upload_to=lambda instance, filename: '/'.join(['screenshot', str(instance.pk), filename]))
+
     def is_known_issue_for(self, release):
         return self.is_known_issue and self.fixed_in_release != release
 
