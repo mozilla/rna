@@ -2,8 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+from itertools import chain
+
 from django.conf import settings
 from django.db import models
+from django.forms.models import model_to_dict
+from django.utils.text import slugify
 from django.utils.timezone import now
 from django_extensions.db.fields import CreationDateTimeField
 
@@ -27,6 +31,12 @@ class TimeStampedModel(models.Model):
         super(TimeStampedModel, self).save(*args, **kwargs)
 
 
+class ReleaseManager(models.Manager):
+    def all_as_list(self):
+        """Return all releases as a list of dicts"""
+        return [r.to_dict() for r in self.prefetch_related('note_set').all()]
+
+
 class Release(TimeStampedModel):
     CHANNELS = ('Nightly', 'Aurora', 'Beta', 'Release', 'ESR')
     PRODUCTS = ('Firefox', 'Firefox for Android',
@@ -44,6 +54,17 @@ class Release(TimeStampedModel):
     bug_list = models.TextField(blank=True)
     bug_search_url = models.CharField(max_length=2000, blank=True)
     system_requirements = models.TextField(blank=True)
+
+    objects = ReleaseManager()
+
+    @property
+    def slug(self):
+        product = slugify(self.product)
+        channel = self.channel.lower()
+        if product.lower() == 'firefox-extended-support-release':
+            product = 'firefox'
+            channel = 'esr'
+        return '-'.join([product, self.version, channel])
 
     def major_version(self):
         return self.version.split('.', 1)[0]
@@ -119,6 +140,31 @@ class Release(TimeStampedModel):
 
         return new_features, known_issues
 
+    def to_dict(self):
+        """Return a dict all all data about the release"""
+        data = model_to_dict(self, exclude=['id'])
+        data['title'] = unicode(self)
+        data['slug'] = self.slug
+        data['release_date'] = self.release_date.date().isoformat()
+        data['created'] = self.created.isoformat()
+        data['modified'] = self.modified.isoformat()
+        new_features, known_issues = self.notes(public_only=False)
+        for note in known_issues:
+            note.tag = 'Known'
+        data['notes'] = [n.to_dict(self) for n in chain(new_features, known_issues)]
+        return data
+
+    def to_simple_dict(self):
+        """Return a dict of only the basic data about the release"""
+        return {
+            'version': self.version,
+            'product': self.product,
+            'channel': self.channel,
+            'is_public': self.is_public,
+            'slug': self.slug,
+            'title': unicode(self),
+        }
+
     def __unicode__(self):
         return '{product} {version} {channel}'.format(
             product=self.product, version=self.version, channel=self.channel)
@@ -147,6 +193,23 @@ class Note(TimeStampedModel):
 
     def is_known_issue_for(self, release):
         return self.is_known_issue and self.fixed_in_release != release
+
+    def to_dict(self, release=None):
+        data = model_to_dict(self, exclude=[
+            'releases',
+            'is_known_issue',
+        ])
+        data['created'] = self.created.isoformat()
+        data['modified'] = self.modified.isoformat()
+        if self.fixed_in_release:
+            data['fixed_in_release'] = self.fixed_in_release.to_simple_dict()
+        else:
+            del data['fixed_in_release']
+
+        if release and self.is_known_issue_for(release):
+            data['tag'] = 'Known'
+
+        return data
 
     def __unicode__(self):
         return self.note

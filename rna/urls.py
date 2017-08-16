@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^releases/(?P<pk>\d+)/notes/$', views.NestedNoteView.as_view()),
     url(r'^auth_token/$', views.auth_token),
     url(r'^sync/?$', views.rnasync),
+    url(r'^all-releases\.json$', views.export_json),
 ]
