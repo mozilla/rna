@@ -1,4 +1,7 @@
+import json
+
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 
 from .models import Note, Release
 
@@ -40,3 +43,13 @@ def get_duplicate_product_versions():
                 duplicates[(product, r.version)] = version_ids[product][
                     r.version]
     return duplicates
+
+
+class HttpResponseJSON(HttpResponse):
+    def __init__(self, data, status=None, cors=False):
+        super(HttpResponseJSON, self).__init__(content=json.dumps(data),
+                                               content_type='application/json',
+                                               status=status)
+
+        if cors:
+            self['Access-Control-Allow-Origin'] = '*'

@@ -25,5 +25,4 @@ class Command(BaseCommand):
         sync_data(url=options['url'],
                   clean=clean,
                   last_modified=None if clean else get_last_modified_date(),
-                  api_token=None,
-                  database=options['database'])
+                  api_token=None)

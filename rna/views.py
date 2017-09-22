@@ -6,7 +6,8 @@ import json
 
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
-from django.views.decorators.http import last_modified
+from django.views.decorators.http import last_modified, require_safe
+from django.views.decorators.cache import cache_page
 
 from rest_framework import generics
 from rest_framework.authtoken.models import Token
@@ -14,7 +15,7 @@ from rest_framework.viewsets import ModelViewSet
 from synctool.routing import Route
 
 from . import models, serializers
-from .utils import get_last_modified_date
+from .utils import get_last_modified_date, HttpResponseJSON
 
 
 rnasync = Route(api_token=None).app('rna', 'rna')
@@ -48,3 +49,9 @@ class NestedNoteView(generics.ListAPIView):
     def get_queryset(self):
         release = get_object_or_404(models.Release, pk=self.kwargs.get('pk'))
         return release.note_set.all()
+
+
+@cache_page(600)  # 10 min
+@require_safe
+def export_json(request):
+    return HttpResponseJSON(models.Release.objects.all_as_list())
