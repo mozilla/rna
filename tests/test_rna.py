@@ -150,7 +150,7 @@ class ReleaseTest(TestCase):
                 new_feature_2, new_feature_1, dot_fix, known_issue_1,
                 known_issue_2]
             new_features, known_issues = release.notes()
-            note_set.order_by.assert_called_with('-sort_num')
+            note_set.order_by.assert_called_with('-sort_num', 'created')
 
         eq_(new_features, [dot_fix, new_feature_2, new_feature_1])
         eq_(known_issues, [known_issue_1, known_issue_2])
