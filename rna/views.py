@@ -4,6 +4,7 @@
 
 import json
 
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import last_modified, require_safe
@@ -20,6 +21,7 @@ from .utils import get_last_modified_date, HttpResponseJSON
 
 rnasync = Route(api_token=None).app('rna', 'rna')
 rnasync = last_modified(get_last_modified_date)(rnasync)
+RNA_JSON_CACHE_TIME = getattr(settings, 'RNA_JSON_CACHE_TIME', 600)
 
 
 def auth_token(request):
@@ -51,7 +53,7 @@ class NestedNoteView(generics.ListAPIView):
         return release.note_set.all()
 
 
-@cache_page(600)  # 10 min
+@cache_page(RNA_JSON_CACHE_TIME)
 @require_safe
 def export_json(request):
     return HttpResponseJSON(models.Release.objects.all_as_list())
