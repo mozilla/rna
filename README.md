@@ -15,10 +15,11 @@ Install requirements
     pip install -r requirements/dev.txt
     npm install -g react-tools
 
-Setup db
---------
+Prepare migrations and create tables
+------------------------------------
 
-    make syncdb_migrate
+    make makemigrations
+    make migrate
 
 Start server
 ------------
@@ -34,12 +35,6 @@ Running tests
 -------------
 
     make test
-
-Creating South schema migrations
---------------------------------
-
-    make schema
-    make migrate
 
 Admin customizations based on React
 -----------------------------------

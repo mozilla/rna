@@ -14,15 +14,12 @@ help:
 	@echo '    make cover                 run tests with coverage'
 	@echo '    make cover_report          run tests with coverage and generate a report'
 	@echo '    make manage                run an arbitrary management command'
-	@echo '    make migrate               run migrations'
+	@echo '    make makemigrations        create migrations'
+	@echo '    make migrate               apply migrations - create new tables'
 	@echo '    make shell                 open a django python shell'
 	@echo '    make shell_plus            run the shell_plus management command'
 	@echo '    make serve                 run the django development server'
 	@echo '    make serve_plus            run the runserver_plus management command'
-	@echo '    make syncdb                create new database tables from models'
-	@echo '    make syncdb_migrate        create new tables and run migrations'
-	@echo '    make schema                create a new automatic schema migration'
-	@echo '    make schema_initial        create the first migration for the app'
 	@echo '    make test                  run tests'
 	@echo '    make test_ipdb             run tests with ipdb instrumentation'
 
@@ -36,6 +33,9 @@ cover_report: cover
 
 manage:
 	@$(CMD_NAME) $(filter-out $@, $(MAKECMDGOALS))
+
+makemigrations:
+	@$(CMD_NAME) makemigrations --noinput rna
 
 migrate:
 	$(CMD_NAME) migrate $(filter-out $@, $(MAKECMDGOALS))
@@ -52,18 +52,6 @@ serve:
 serve_plus:
 	@$(CMD_NAME) runserver_plus
 
-syncdb:
-	@$(CMD_NAME) syncdb --noinput
-
-syncdb_migrate:
-	@$(CMD_NAME) syncdb --migrate --noinput
-
-schema:
-	@$(CMD_NAME) schemamigration $(APP_DIR) --auto
-
-schema_initial:
-	@$(CMD_NAME) schemamigration $(APP_DIR) --initial
-
 test:
 	@./runtests.py $(filter-out $@, $(MAKECMDGOALS))
 
@@ -71,4 +59,4 @@ test_ipdb:
 	@./runtests.py $(filter-out $@, $(MAKECMDGOALS)) --ipdb --ipdb-failures
 
 
-.PHONY: cover cover_report manage migrate shell shell_plus serve serve_plus syncdb syncdb_migrate schema schema_initial test test_ipdb
+.PHONY: cover cover_report manage makemigrations migrate shell shell_plus serve serve_plus test test_ipdb
