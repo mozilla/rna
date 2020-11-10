@@ -33,6 +33,8 @@ class ReleaseAdminForm(forms.ModelForm):
                                           required=False)
     text = forms.CharField(widget=AdminPagedownWidget(), required=False)
     release_date = forms.DateTimeField(widget=admin.widgets.AdminDateWidget)
+    short_google_play_note = forms.CharField(widget=AdminPagedownWidget(),
+                                          required=False)
 
     class Meta:
         model = models.Release
