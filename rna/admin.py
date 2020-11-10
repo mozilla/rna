@@ -7,7 +7,24 @@ from django.contrib import admin
 from django.utils.timezone import now
 from pagedown.widgets import AdminPagedownWidget
 
+# For the display of the images
+from django.utils.safestring import mark_safe
+from django.contrib.admin.widgets import AdminFileWidget
+
 from . import models
+
+
+class AdminImageWidget(AdminFileWidget):
+    """subclass the AdminFileWidget in order to display the image"""
+    def render(self, name, value, attrs=None):
+        output = []
+        if value:
+            output.append(u'<div>{0} size: {1}x{2}</div>'.format(value, value.width, value.height))
+        output.append(super(AdminFileWidget, self).render(name, value, attrs))
+        if value and getattr(value, "url", None):
+            img = u'<div><img src="{0}" height="128px"/></div>'.format(value.url)
+            output.append(img)
+        return mark_safe(u''.join(output))
 
 
 class NoteAdminForm(forms.ModelForm):
@@ -26,6 +43,13 @@ class NoteAdmin(admin.ModelAdmin):
     list_filter = ('tag', 'is_known_issue', 'releases__product',
                    'releases__version')
     search_fields = ('bug', 'note', 'releases__version')
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'image':  # The model has an 'image' field
+            kwargs['widget'] = AdminImageWidget
+            kwargs.pop('request', None)  # Error otherwise
+            return db_field.formfield(**kwargs)
+        return super(NoteAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
 
 class ReleaseAdminForm(forms.ModelForm):
